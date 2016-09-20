@@ -180,7 +180,29 @@ public class Percolation {
         // test client (optional)
         System.out.println("my first PA");
 
-        // initialize a map
+        Test3x3();
+
+        Test5x5();
+    }
+
+    private static void Test5x5() {
+        Percolation p = new Percolation(5);
+        p.open(5, 4);
+        p.open(5, 3);
+        p.open(4, 3);
+        p.open(3, 3);
+        p.open(2, 3);
+        p.open(1, 2);
+        p.printDebugGrid();
+        boolean perc = p.percolates();
+        assert !perc;
+        p.open(1, 3);
+        perc = p.percolates();
+        p.printDebugGrid();
+        assert perc;
+    }
+
+    private static void Test3x3() {
         Percolation p = new Percolation(3);
 
         p.printDebugGrid();
@@ -204,7 +226,6 @@ public class Percolation {
         assert p.isFull(2, 2);
         assert p.isFull(3, 2);
         assert perc == true;
-
     }
 
     private void printDebugGrid() {
