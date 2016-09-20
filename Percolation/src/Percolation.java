@@ -10,6 +10,10 @@ public class Percolation {
     int gridSize; // this is necessary to navigate our array
     int[] openFull; // -1 = closed, 0 = open, 1 = full
 
+    final int SITE_STATE_CLOSED = 0;
+    final int SITE_STATE_OPEN = 1;
+    final int SITE_STATE_FULL = 2;
+
     // create n-by-n grid, with all sites blocked
     public Percolation(int n) {
         // validate param
@@ -22,7 +26,7 @@ public class Percolation {
         // each site should be initialized as closed
         openFull = new int[n * n];
         for (int i = 0; i < openFull.length; i++) {
-            openFull[i] = -1;
+            openFull[i] = SITE_STATE_CLOSED;
         }
 
     }
@@ -35,14 +39,14 @@ public class Percolation {
 
         // mark the site as open
         int newSiteArrIdx = getArrayIndex(row, col);
-        openFull[newSiteArrIdx] = 0;
+        openFull[newSiteArrIdx] = SITE_STATE_OPEN;
 
         // check if any adjacent sites are open and union with them if so
         unionNeighbors(row, col);
 
         // if the newly opened site is a top node, promote the site from open to full
         if (row == 1) {
-            openFull[newSiteArrIdx] = 1;
+            openFull[newSiteArrIdx] = SITE_STATE_FULL;
         }
 
     }
@@ -82,7 +86,7 @@ public class Percolation {
         validatePositionZeroBased(i-1, j-1);
 
         int pos = (i-1)*gridSize + (j-1);
-        boolean result = openFull[pos] == 0;
+        boolean result = openFull[pos] == SITE_STATE_OPEN;
         return result;
     }
 
@@ -92,7 +96,7 @@ public class Percolation {
         validatePositionZeroBased(i-1, j-1);
 
         int pos = (i-1)*gridSize + (j-1);
-        boolean result = openFull[pos] == 1;
+        boolean result = openFull[pos] == SITE_STATE_FULL;
         return result;
     }
 
@@ -124,7 +128,7 @@ public class Percolation {
                 //System.out.print("Checking if (" + row + ", " + col + ") is connected to a top-row full site... ");
                 if (hasConnectionToOpenTopRowSite(row, col)) {
                     //System.out.println("yes.");
-                    openFull[currentSiteIdx] = 1;
+                    openFull[currentSiteIdx] = SITE_STATE_FULL;
                 } else {
                     //System.out.println("no.");
                 }
