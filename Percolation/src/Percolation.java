@@ -28,12 +28,11 @@ public class Percolation {
         for (int i = 0; i < openFull.length; i++) {
             openFull[i] = SITE_STATE_CLOSED;
         }
-
     }
 
     // open site (row i, column j) if it is not open already
     public void open(int row, int col) {
-        System.out.println("opening (" + row + ", " + col + ")");
+        //System.out.println("opening (" + row + ", " + col + ")");
         // the upper-left site is indexed (1, 1) but it will be presented as (0, 0) in our map
         validatePositionOneBased(row, col);
 
@@ -57,7 +56,7 @@ public class Percolation {
             if (isOpen(neighborRow, neighborCol)) {
                 int newSiteIdx = getArrayIndex(newSiteRow, newSiteCol);
                 int neighborIdx = getArrayIndex(neighborRow, neighborCol);
-                System.out.println("tryUnionNeighbor: newSiteIdx=" + newSiteIdx + ", neighborIdx=" + neighborIdx);
+                //System.out.println("tryUnionNeighbor: newSiteIdx=" + newSiteIdx + ", neighborIdx=" + neighborIdx);
                 map.union(newSiteIdx, neighborIdx);
             }
         } catch (IndexOutOfBoundsException e) {
@@ -86,7 +85,7 @@ public class Percolation {
         validatePositionZeroBased(i-1, j-1);
 
         int pos = (i-1)*gridSize + (j-1);
-        boolean result = openFull[pos] == SITE_STATE_OPEN;
+        boolean result = openFull[pos] != SITE_STATE_CLOSED;
         return result;
     }
 
@@ -120,7 +119,7 @@ public class Percolation {
 
     // does the system percolate?
     public boolean percolates() {
-        System.out.println("percolating system... ");
+        //System.out.println("percolating system... ");
         // for each open site that is connected to a top node, promote the site from open to full (skip top row)
         for (int row = 2; row <= gridSize; row++) {
             for (int col = 1; col <= gridSize; col++) {
@@ -152,6 +151,19 @@ public class Percolation {
         return false; // there is no connection thus the system must not percolate
     }
 
+    public double getThreshold() {
+        // threshold is (# of open sites / # of total sites)
+        int numOpenSites = 0;
+        for (int i : openFull) {
+            if (i == SITE_STATE_OPEN) {
+                numOpenSites++;
+            }
+        }
+        int numTotalSites = openFull.length;
+
+        return (double) numOpenSites / numTotalSites;
+    }
+
     private boolean hasConnectionToOpenTopRowSite(int row, int col) {
         validatePositionOneBased(row, col);
 
@@ -178,7 +190,8 @@ public class Percolation {
 
     public static void main(String[] args) {
         // test client (optional)
-        System.out.println("my first PA");
+
+        Test2x2();
 
         Test3x3();
 
@@ -198,6 +211,18 @@ public class Percolation {
         assert !perc;
         p.open(1, 3);
         perc = p.percolates();
+        p.printDebugGrid();
+        assert perc;
+    }
+
+    private static void Test2x2() {
+        Percolation p = new Percolation(2);
+        assert !p.isOpen(1, 1);
+        assert !p.isOpen(2, 1);
+        p.printDebugGrid();
+        p.open(1,1);
+        p.open(2,1);
+        boolean perc = p.percolates();
         p.printDebugGrid();
         assert perc;
     }
