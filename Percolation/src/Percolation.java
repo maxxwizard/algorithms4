@@ -155,7 +155,7 @@ public class Percolation {
         // threshold is (# of open sites / # of total sites)
         int numOpenSites = 0;
         for (int i : openFull) {
-            if (i == SITE_STATE_OPEN) {
+            if (i != SITE_STATE_CLOSED) {
                 numOpenSites++;
             }
         }
