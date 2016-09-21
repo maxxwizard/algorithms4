@@ -2,6 +2,7 @@
  * Created by Matthew Huynh on 9/6/2016.
  */
 
+import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
@@ -40,7 +41,7 @@ public class Percolation {
             // do nothing
             return;
         } else {
-            //StdOut.printf("Opening (%d, %d)\n", row, col);
+            StdOut.printf("Opening (%d, %d)\n", row, col);
             // mark the site as open
             int newSiteArrIdx = getArrayIndex(row, col);
             openFull[newSiteArrIdx] = SITE_STATE_OPEN;
@@ -87,9 +88,8 @@ public class Percolation {
         // the upper-left site is indexed (1, 1) but it will be presented as (0, 0) in our map
         validateIndices(i, j);
 
-        int pos = (i-1)*gridSize + (j-1);
-        boolean result = openFull[pos] != SITE_STATE_CLOSED;
-        return result;
+        int pos = getArrayIndex (i, j);
+        return openFull[pos] != SITE_STATE_CLOSED;
     }
 
     // is site (row i, column j) full?
@@ -97,9 +97,8 @@ public class Percolation {
         // the upper-left site is indexed (1, 1) but it will be presented as (0, 0) in our map
         validateIndices(i, j);
 
-        int pos = (i-1)*gridSize + (j-1);
-        boolean result = openFull[pos] == SITE_STATE_FULL;
-        return result;
+        int pos = getArrayIndex (i, j);
+        return openFull[pos] == SITE_STATE_FULL;
     }
 
     // checks that indices i and j are inside the map bounds
@@ -123,25 +122,32 @@ public class Percolation {
 
     // does the system percolate?
     public boolean percolates() {
+        int currentSiteIdx;
+
         //System.out.println("percolating system... ");
         // for each open site that is connected to a top node, promote the site from open to full (skip top row)
         for (int row = 2; row <= gridSize; row++) {
             for (int col = 1; col <= gridSize; col++) {
-                int currentSiteIdx = getArrayIndex(row, col);
-                //System.out.print("Checking if (" + row + ", " + col + ") is connected to a top-row full site... ");
-                if (hasConnectionToOpenTopRowSite(row, col)) {
-                    //System.out.println("yes.");
-                    openFull[currentSiteIdx] = SITE_STATE_FULL;
+                // if already promoted
+                if (isFull(row, col)) {
+                    // do nothing
                 } else {
-                    //System.out.println("no.");
+                    if (hasConnectionToOpenTopRowSite(row, col)) {
+                        StdOut.printf("promoting (%d, %d) to FULL\n", row, col);
+                        currentSiteIdx = getArrayIndex(row, col);
+                        openFull[currentSiteIdx] = SITE_STATE_FULL;
+                    } else {
+                        // do nothing
+                    }
                 }
             }
         }
 
         // check if there is a component that has a connection between a site in the top and a site in the bottom
+        int bottomSite;
         for (int topSite = 0; topSite < gridSize; topSite++) {
             for (int j = 0; j < gridSize; j++) {
-                int bottomSite = (gridSize-1)*gridSize + j;
+                bottomSite = (gridSize-1)*gridSize + j;
                 //System.out.println("checking if topSite " + topSite + " is connected with bottomSite " + bottomSite + "...");
                 if (map.connected(topSite, bottomSite)) {
                     //System.out.println(" true");

@@ -24,17 +24,19 @@ public class PercolationStats {
         this.trials = trials;
 
         thresholds = new double[trials];
+        int randomRow, randomCol;
+        double thres;
         for (int i = 0; i < trials; i++) {
-            StdOut.printf("Trial %d... ", i);
+            StdOut.printf("Trial %d...\n", i);
             Percolation p = new Percolation(n);
             // now spawn a random site until the system percolates
             while (!p.percolates()) {
-                int randomRow = StdRandom.uniform(1, n+1);
-                int randomCol = StdRandom.uniform(1, n+1);
+                randomRow = StdRandom.uniform(1, n+1);
+                randomCol = StdRandom.uniform(1, n+1);
                 p.open(randomRow, randomCol);
             }
             // system must be percolating now so store its threshold
-            double thres = p.getThreshold();
+            thres = p.getThreshold();
             thresholds[i] = thres;
             StdOut.printf("Threshold: %f\n", thres);
         }
