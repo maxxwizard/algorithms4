@@ -2,6 +2,7 @@
  * Created by Matthew Huynh on 9/6/2016.
  */
 
+import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
@@ -32,22 +33,27 @@ public class Percolation {
 
     // open site (row i, column j) if it is not open already
     public void open(int row, int col) {
-        //System.out.println("opening (" + row + ", " + col + ")");
         // the upper-left site is indexed (1, 1) but it will be presented as (0, 0) in our map
         validatePositionOneBased(row, col);
 
-        // mark the site as open
-        int newSiteArrIdx = getArrayIndex(row, col);
-        openFull[newSiteArrIdx] = SITE_STATE_OPEN;
+        // if position is already open
+        if (isOpen(row, col)) {
+            // do nothing
+            return;
+        } else {
+            //StdOut.printf("Opening (%d, %d)\n", row, col);
+            // mark the site as open
+            int newSiteArrIdx = getArrayIndex(row, col);
+            openFull[newSiteArrIdx] = SITE_STATE_OPEN;
 
-        // check if any adjacent sites are open and union with them if so
-        unionNeighbors(row, col);
+            // check if any adjacent sites are open and union with them if so
+            unionNeighbors(row, col);
 
-        // if the newly opened site is a top node, promote the site from open to full
-        if (row == 1) {
-            openFull[newSiteArrIdx] = SITE_STATE_FULL;
+            // if the newly opened site is a top node, promote the site from open to full
+            if (row == 1) {
+                openFull[newSiteArrIdx] = SITE_STATE_FULL;
+            }
         }
-
     }
 
     // tries to union a neighboring site if site node exists

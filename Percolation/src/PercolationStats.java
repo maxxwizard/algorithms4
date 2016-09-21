@@ -1,3 +1,4 @@
+import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.StdRandom;
 import edu.princeton.cs.algs4.StdStats;
 
@@ -7,6 +8,8 @@ import edu.princeton.cs.algs4.StdStats;
 
 public class PercolationStats {
     double[] thresholds;
+    int n, trials;
+    final double zValue = 1.96;
 
     // perform trials independent experiments on an n-by-n grid
     public PercolationStats(int n, int trials) {
@@ -16,8 +19,13 @@ public class PercolationStats {
             throw new java.lang.IllegalArgumentException();
         }
 
+        // store values
+        this.n = n;
+        this.trials = trials;
+
         thresholds = new double[trials];
         for (int i = 0; i < trials; i++) {
+            StdOut.printf("Trial %d... ", i);
             Percolation p = new Percolation(n);
             // now spawn a random site until the system percolates
             while (!p.percolates()) {
@@ -26,7 +34,9 @@ public class PercolationStats {
                 p.open(randomRow, randomCol);
             }
             // system must be percolating now so store its threshold
-            thresholds[i] = p.getThreshold();
+            double thres = p.getThreshold();
+            thresholds[i] = thres;
+            StdOut.printf("Threshold: %f\n", thres);
         }
     }
 
@@ -37,17 +47,23 @@ public class PercolationStats {
 
     // sample standard deviation of percolation threshold
     public double stddev() {
-        return 0;
+        return StdStats.stddev(thresholds);
     }
 
-    // low  endpoint of 95% confidence interval
+    // low endpoint of 95% confidence interval
     public double confidenceLo() {
-        return 0;
+        return mean() - stdError();
     }
 
     // high endpoint of 95% confidence interval
     public double confidenceHi() {
-        return 0;
+        return mean() + stdError();
+    }
+
+    private double stdError() {
+        double stdErr = stddev() / Math.sqrt(trials);
+        // z-value * stdErr = margin of error
+        return zValue * stdErr;
     }
 
     // test client (described below)
@@ -66,7 +82,12 @@ public class PercolationStats {
             // run our Monte Carlo simulation
             PercolationStats ps = new PercolationStats(gridSize, trials);
             double mean = ps.mean();
-            System.out.printf("%-23s = %f", "mean", mean);
+            double stdDev = ps.stddev();
+            double confIntLow = ps.confidenceLo();
+            double confIntHigh = ps.confidenceHi();
+            System.out.printf("%-23s = %f\n", "mean", mean);
+            System.out.printf("%-23s = %f\n", "stddev", stdDev);
+            System.out.printf("%-23s = %f, %f\n", "95% confidence interval", confIntLow, confIntHigh);
         } else {
             System.err.println("Usage: java PercolationStats <n> <trials>");
         }
