@@ -1,4 +1,3 @@
-import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.StdRandom;
 import edu.princeton.cs.algs4.StdStats;
 
@@ -9,7 +8,7 @@ import edu.princeton.cs.algs4.StdStats;
 public class PercolationStats {
     private double[] thresholds;
     private int n, trials;
-    private final double zValue = 1.96;
+    private static final double zValue = 1.96;
 
     // perform trials independent experiments on an n-by-n grid
     public PercolationStats(int n, int trials) {
@@ -27,7 +26,7 @@ public class PercolationStats {
         int randomRow, randomCol;
 
         for (int i = 0; i < trials; i++) {
-            //StdOut.printf("Trial %d...\n", i);
+            // System.out.printf("Trial %d...\n", i);
 
             int numOpenSites = 0;
 
@@ -47,7 +46,7 @@ public class PercolationStats {
             int numTotalSites = n*n;
             double threshold = (double) numOpenSites / numTotalSites;
             thresholds[i] = threshold;
-            //StdOut.printf("Threshold: %f\n", threshold);
+            // System.out.printf("Threshold: %f\n", threshold);
         }
     }
 
@@ -87,7 +86,6 @@ public class PercolationStats {
                 trials = Integer.parseInt(args[1]);
             } catch (NumberFormatException e) {
                 System.err.println("Argument" + args[0] + " must be an integer.");
-                System.exit(1);
             }
 
             // run our Monte Carlo simulation

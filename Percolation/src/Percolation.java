@@ -2,7 +2,6 @@
  * Created by Matthew Huynh on 9/6/2016.
  */
 
-import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
@@ -11,9 +10,9 @@ public class Percolation {
     private int gridSize; // this is necessary to navigate our array
     private int[] openFull; // -1 = closed, 0 = open, 1 = full
 
-    private final int SITE_STATE_CLOSED = 0;
-    private final int SITE_STATE_OPEN = 1;
-    private final int SITE_STATE_FULL = 2;
+    private static final int SITE_STATE_CLOSED = 0;
+    private static final int SITE_STATE_OPEN = 1;
+    private static final int SITE_STATE_FULL = 2;
 
     // create n-by-n grid, with all sites blocked
     public Percolation(int n) {
@@ -41,7 +40,7 @@ public class Percolation {
             // do nothing
             return;
         } else {
-            //StdOut.printf("Opening (%d, %d)\n", row, col);
+            // System.out.printf("Opening (%d, %d)\n", row, col);
             // mark the site as open
             int newSiteArrIdx = getArrayIndex(row, col);
             openFull[newSiteArrIdx] = SITE_STATE_OPEN;
@@ -135,7 +134,7 @@ public class Percolation {
             if (isOpen(neighborRow, neighborCol)) {
                 int newSiteIdx = getArrayIndex(newSiteRow, newSiteCol);
                 int neighborIdx = getArrayIndex(neighborRow, neighborCol);
-                //System.out.println("tryUnionNeighbor: newSiteIdx=" + newSiteIdx + ", neighborIdx=" + neighborIdx);
+                // System.out.println("tryUnionNeighbor: newSiteIdx=" + newSiteIdx + ", neighborIdx=" + neighborIdx);
                 map.union(newSiteIdx, neighborIdx);
             }
         }
@@ -197,19 +196,19 @@ public class Percolation {
     // does the system percolate?
     public boolean percolates() {
 
-        //System.out.println("percolating system... ");
+        // System.out.println("percolating system... ");
 
         // check if there is a component that has a connection between a site in the top and a site in the bottom
         int bottomSite;
         for (int topSite = 0; topSite < gridSize; topSite++) {
             for (int j = 0; j < gridSize; j++) {
                 bottomSite = (gridSize-1)*gridSize + j;
-                //System.out.println("checking if topSite " + topSite + " is connected with bottomSite " + bottomSite + "...");
+                // System.out.println("checking if topSite " + topSite + " is connected with bottomSite " + bottomSite + "...");
                 if (map.connected(topSite, bottomSite)) {
-                    //System.out.println(" true");
+                    // System.out.println(" true");
                     return true;
                 } else {
-                    //System.out.println(" false");
+                    // System.out.println(" false");
                 }
             }
         }
@@ -220,14 +219,14 @@ public class Percolation {
     public static void main(String[] args) {
         // test client (optional)
 
-        //Test2x2();
+        test2x2();
 
-        //Test3x3();
+        test3x3();
 
-        Test5x5();
+        test5x5();
     }
 
-    private static void Test5x5() {
+    private static void test5x5() {
         Percolation p = new Percolation(5);
         p.open(5, 4);
         p.open(5, 3);
@@ -244,19 +243,19 @@ public class Percolation {
         assert perc;
     }
 
-    private static void Test2x2() {
+    private static void test2x2() {
         Percolation p = new Percolation(2);
         assert !p.isOpen(1, 1);
         assert !p.isOpen(2, 1);
         p.printDebugGrid();
-        p.open(1,1);
-        p.open(2,1);
+        p.open(1, 1);
+        p.open(2, 1);
         boolean perc = p.percolates();
         p.printDebugGrid();
         assert perc;
     }
 
-    private static void Test3x3() {
+    private static void test3x3() {
         Percolation p = new Percolation(3);
 
         p.printDebugGrid();
