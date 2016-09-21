@@ -2,7 +2,6 @@
  * Created by Matthew Huynh on 9/6/2016.
  */
 
-import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
@@ -34,7 +33,7 @@ public class Percolation {
     // open site (row i, column j) if it is not open already
     public void open(int row, int col) {
         // the upper-left site is indexed (1, 1) but it will be presented as (0, 0) in our map
-        validatePositionOneBased(row, col);
+        validateIndices(row, col);
 
         // if position is already open
         if (isOpen(row, col)) {
@@ -88,7 +87,7 @@ public class Percolation {
     // is site (row i, column j) open?
     public boolean isOpen(int i, int j) {
         // the upper-left site is indexed (1, 1) but it will be presented as (0, 0) in our map
-        validatePositionZeroBased(i-1, j-1);
+        validateIndices(i, j);
 
         int pos = (i-1)*gridSize + (j-1);
         boolean result = openFull[pos] != SITE_STATE_CLOSED;
@@ -98,7 +97,7 @@ public class Percolation {
     // is site (row i, column j) full?
     public boolean isFull(int i, int j) {
         // the upper-left site is indexed (1, 1) but it will be presented as (0, 0) in our map
-        validatePositionZeroBased(i-1, j-1);
+        validateIndices(i, j);
 
         int pos = (i-1)*gridSize + (j-1);
         boolean result = openFull[pos] == SITE_STATE_FULL;
@@ -106,14 +105,7 @@ public class Percolation {
     }
 
     // checks that indices i and j are inside the map bounds
-    private void validatePositionZeroBased(int i, int j) {
-        if (i < 0 || i >= gridSize || j < 0 || j >= gridSize) {
-            throw new java.lang.IndexOutOfBoundsException();
-        }
-    }
-
-    // checks that indices i and j are inside the map bounds
-    private void validatePositionOneBased(int i, int j) {
+    private void validateIndices(int i, int j) {
         if (i < 1 || i > gridSize || j < 1 || j > gridSize) {
             throw new java.lang.IndexOutOfBoundsException();
         }
@@ -171,7 +163,7 @@ public class Percolation {
     }
 
     private boolean hasConnectionToOpenTopRowSite(int row, int col) {
-        validatePositionOneBased(row, col);
+        validateIndices(row, col);
 
         int newSiteIdx = getArrayIndex(row, col);
         // iterate through top row
