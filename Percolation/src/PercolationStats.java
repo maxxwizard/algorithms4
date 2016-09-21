@@ -6,9 +6,10 @@ import edu.princeton.cs.algs4.StdStats;
  */
 
 public class PercolationStats {
+    private static final double Z_VALUE = 1.96;
+
     private double[] thresholds;
     private int n, trials;
-    private static final double zValue = 1.96;
 
     // perform trials independent experiments on an n-by-n grid
     public PercolationStats(int n, int trials) {
@@ -73,7 +74,7 @@ public class PercolationStats {
     private double stdError() {
         double stdErr = stddev() / Math.sqrt(trials);
         // z-value * stdErr = margin of error
-        return zValue * stdErr;
+        return Z_VALUE * stdErr;
     }
 
     // test client (described below)

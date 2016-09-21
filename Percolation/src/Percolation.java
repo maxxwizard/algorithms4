@@ -6,13 +6,13 @@ import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
 
-    private WeightedQuickUnionUF map;
-    private int gridSize; // this is necessary to navigate our array
-    private int[] openFull; // -1 = closed, 0 = open, 1 = full
-
     private static final int SITE_STATE_CLOSED = 0;
     private static final int SITE_STATE_OPEN = 1;
     private static final int SITE_STATE_FULL = 2;
+
+    private WeightedQuickUnionUF map;
+    private int gridSize; // this is necessary to navigate our array
+    private int[] openFull; // -1 = closed, 0 = open, 1 = full
 
     // create n-by-n grid, with all sites blocked
     public Percolation(int n) {
@@ -160,7 +160,7 @@ public class Percolation {
         // the upper-left site is indexed (1, 1) but it will be presented as (0, 0) in our map
         validateIndices(i, j);
 
-        int pos = getArrayIndex (i, j);
+        int pos = getArrayIndex(i, j);
         return openFull[pos] != SITE_STATE_CLOSED;
     }
 
@@ -169,7 +169,7 @@ public class Percolation {
         // the upper-left site is indexed (1, 1) but it will be presented as (0, 0) in our map
         validateIndices(i, j);
 
-        int pos = getArrayIndex (i, j);
+        int pos = getArrayIndex(i, j);
         return openFull[pos] == SITE_STATE_FULL;
     }
 
@@ -259,17 +259,17 @@ public class Percolation {
         Percolation p = new Percolation(3);
 
         p.printDebugGrid();
-        assert p.isOpen(3, 3) == false;
-        assert p.isFull(2, 2) == false;
+        assert !p.isOpen(3, 3);
+        assert !p.isFull(2, 2);
         p.open(3, 2);
         p.open(2, 2);
         p.printDebugGrid();
-        assert p.isFull(2, 2) == false;
-        assert p.isOpen(3, 2) == true;
-        assert p.isOpen(2, 2) == true;
+        assert !p.isFull(2, 2);
+        assert p.isOpen(3, 2);
+        assert p.isOpen(2, 2);
         boolean perc = p.percolates();
         p.printDebugGrid();
-        assert perc == false;
+        assert !perc;
 
         p.open(1, 2);
         p.printDebugGrid();
@@ -278,7 +278,7 @@ public class Percolation {
         assert p.isFull(1, 2);
         assert p.isFull(2, 2);
         assert p.isFull(3, 2);
-        assert perc == true;
+        assert perc;
     }
 
     private void printDebugGrid() {
