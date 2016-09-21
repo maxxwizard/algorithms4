@@ -13,6 +13,7 @@ public class Percolation {
     private WeightedQuickUnionUF map;
     private int gridSize; // this is necessary to navigate our array
     private int[] openFull; // -1 = closed, 0 = open, 1 = full
+    private int topSiteComponentId, bottomSiteComponentId;
 
     // create n-by-n grid, with all sites blocked
     public Percolation(int n) {
@@ -21,12 +22,26 @@ public class Percolation {
             throw new java.lang.IllegalArgumentException();
         }
 
-        map = new WeightedQuickUnionUF(n*n);
+        // add 2 spots at the end of the array for the virtual top and bottom sites
+        map = new WeightedQuickUnionUF(n*n + 2);
         gridSize = n;
+
         // each site should be initialized as closed
         openFull = new int[n * n];
         for (int i = 0; i < openFull.length; i++) {
             openFull[i] = SITE_STATE_CLOSED;
+        }
+
+        // initialize virtual top and bottom sites
+        topSiteComponentId = map.find(n*n); // 2nd to last
+        bottomSiteComponentId = map.find(n*n+1); // last
+        for (int topSiteCol = 1; topSiteCol <= gridSize; topSiteCol++) {
+            int topSiteIdx = getArrayIndex(1, topSiteCol);
+            map.union(topSiteIdx, topSiteComponentId);
+        }
+        for (int bottomSiteCol = 1; bottomSiteCol <= gridSize; bottomSiteCol++) {
+            int bottomSiteIdx = getArrayIndex(gridSize, bottomSiteCol);
+            map.union(bottomSiteIdx, bottomSiteComponentId);
         }
     }
 
@@ -195,29 +210,18 @@ public class Percolation {
 
     // does the system percolate?
     public boolean percolates() {
-
-        // System.out.println("percolating system... ");
-
-        // check if there is a component that has a connection between a site in the top and a site in the bottom
-        int bottomSite;
-        for (int topSite = 0; topSite < gridSize; topSite++) {
-            for (int j = 0; j < gridSize; j++) {
-                bottomSite = (gridSize-1)*gridSize + j;
-                // System.out.println("checking if topSite " + topSite + " is connected with bottomSite " + bottomSite + "...");
-                if (map.connected(topSite, bottomSite)) {
-                    // System.out.println(" true");
-                    return true;
-                } else {
-                    // System.out.println(" false");
-                }
-            }
+        // special case grid 1 where it will only percolate iff the site is full
+        if (gridSize == 1) {
+            return isFull(1, 1);
         }
 
-        return false; // there is no connection thus the system must not percolate
+        return map.connected(topSiteComponentId, bottomSiteComponentId);
     }
 
     public static void main(String[] args) {
         // test client (optional)
+
+        test1x1();
 
         test2x2();
 
@@ -226,7 +230,20 @@ public class Percolation {
         test5x5();
     }
 
+    private static void test1x1() {
+        System.out.println("1x1 Test");
+        Percolation p = new Percolation(1);
+        assert !p.isOpen(1, 1);
+        boolean perc = p.percolates();
+        assert !perc;
+        p.open(1, 1);
+        assert p.isFull(1, 1);
+        perc = p.percolates();
+        assert perc;
+    }
+
     private static void test5x5() {
+        System.out.println("5x5 Test");
         Percolation p = new Percolation(5);
         p.open(5, 4);
         p.open(5, 3);
@@ -244,6 +261,7 @@ public class Percolation {
     }
 
     private static void test2x2() {
+        System.out.println("2x2 Test");
         Percolation p = new Percolation(2);
         assert !p.isOpen(1, 1);
         assert !p.isOpen(2, 1);
@@ -256,6 +274,7 @@ public class Percolation {
     }
 
     private static void test3x3() {
+        System.out.println("3x3 Test");
         Percolation p = new Percolation(3);
 
         p.printDebugGrid();

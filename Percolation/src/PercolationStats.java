@@ -9,7 +9,7 @@ public class PercolationStats {
     private static final double Z_VALUE = 1.96;
 
     private double[] thresholds;
-    private int n, trials;
+    private int trials;
 
     // perform trials independent experiments on an n-by-n grid
     public PercolationStats(int n, int trials) {
@@ -20,7 +20,6 @@ public class PercolationStats {
         }
 
         // store values
-        this.n = n;
         this.trials = trials;
 
         thresholds = new double[trials];
