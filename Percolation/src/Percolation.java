@@ -7,13 +7,13 @@ import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
 
-    WeightedQuickUnionUF map;
-    int gridSize; // this is necessary to navigate our array
-    int[] openFull; // -1 = closed, 0 = open, 1 = full
+    private WeightedQuickUnionUF map;
+    private int gridSize; // this is necessary to navigate our array
+    private int[] openFull; // -1 = closed, 0 = open, 1 = full
 
-    final int SITE_STATE_CLOSED = 0;
-    final int SITE_STATE_OPEN = 1;
-    final int SITE_STATE_FULL = 2;
+    private final int SITE_STATE_CLOSED = 0;
+    private final int SITE_STATE_OPEN = 1;
+    private final int SITE_STATE_FULL = 2;
 
     // create n-by-n grid, with all sites blocked
     public Percolation(int n) {
@@ -41,7 +41,7 @@ public class Percolation {
             // do nothing
             return;
         } else {
-            StdOut.printf("Opening (%d, %d)\n", row, col);
+            //StdOut.printf("Opening (%d, %d)\n", row, col);
             // mark the site as open
             int newSiteArrIdx = getArrayIndex(row, col);
             openFull[newSiteArrIdx] = SITE_STATE_OPEN;
@@ -49,11 +49,84 @@ public class Percolation {
             // check if any adjacent sites are open and union with them if so
             unionNeighbors(row, col);
 
-            // if the newly opened site is a top node, promote the site from open to full
-            if (row == 1) {
+            // if the newly opened site is a top node OR a nearby site is full, promote the site from open to full
+            if (row == 1 || hasFullNeighbor(row, col)) {
                 openFull[newSiteArrIdx] = SITE_STATE_FULL;
             }
+
+            // if new site is full, spread to neighbor open sites
+            if (openFull[newSiteArrIdx] == SITE_STATE_FULL) {
+                spreadLiquid(row, col);
+            }
         }
+    }
+
+    private void spreadLiquid(int sourceRow, int sourceCol) {
+        // start from a source and spread liquid to open sites
+        spreadLiquid(sourceRow, sourceCol, sourceRow-1, sourceCol); // above
+        spreadLiquid(sourceRow, sourceCol, sourceRow+1, sourceCol); // below
+        spreadLiquid(sourceRow, sourceCol, sourceRow, sourceCol-1); // left
+        spreadLiquid(sourceRow, sourceCol, sourceRow, sourceCol+1); // right
+    }
+
+    private void spreadLiquid(int sourceRow, int sourceCol, int targetRow, int targetCol) {
+        // if either targetRow or targetCol is invalid, return
+        if (!validateIndicesNoThrow(targetRow, targetCol)) {
+            return;
+        }
+
+        // if we're trying to spread to the source, return
+        if (sourceRow == targetRow && sourceCol == targetCol) {
+            return;
+        }
+
+        // if site is already full, return (because the liquid already spread from that site)
+        if (isFull(targetRow, targetCol)) {
+            return;
+        }
+
+        // if site is open, mark as full and then spread the liquid to neighbors
+        if (isOpen(targetRow, targetCol)) {
+            openFull[getArrayIndex(targetRow, targetCol)] = SITE_STATE_FULL;
+
+            // call this method on all neighbors to spread liquid
+            spreadLiquid(sourceRow, sourceCol, targetRow-1, targetCol); // above
+            spreadLiquid(sourceRow, sourceCol, targetRow+1, targetCol); // below
+            spreadLiquid(sourceRow, sourceCol, targetRow, targetCol-1); // left
+            spreadLiquid(sourceRow, sourceCol, targetRow, targetCol+1); // right
+        }
+    }
+
+    private boolean hasFullNeighbor(int row, int col) {
+        // above
+        if (validateIndicesNoThrow(row-1, col)) {
+            if (isFull(row-1, col)) {
+                return true;
+            }
+        }
+
+        // below
+        if (validateIndicesNoThrow(row+1, col)) {
+            if (isFull(row+1, col)) {
+                return true;
+            }
+        }
+
+        // left
+        if (validateIndicesNoThrow(row, col-1)) {
+            if (isFull(row, col-1)) {
+                return true;
+            }
+        }
+
+        // right
+        if (validateIndicesNoThrow(row, col+1)) {
+            if (isFull(row, col+1)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // tries to union a neighboring site if site node exists
@@ -116,32 +189,15 @@ public class Percolation {
         return true;
     }
 
+    // expects only valid input
     private int getArrayIndex(int row, int col) {
         return (row-1)*gridSize + (col-1);
     }
 
     // does the system percolate?
     public boolean percolates() {
-        int currentSiteIdx;
 
         //System.out.println("percolating system... ");
-        // for each open site that is connected to a top node, promote the site from open to full (skip top row)
-        for (int row = 2; row <= gridSize; row++) {
-            for (int col = 1; col <= gridSize; col++) {
-                // if already promoted
-                if (isFull(row, col)) {
-                    // do nothing
-                } else {
-                    if (hasConnectionToOpenTopRowSite(row, col)) {
-                        StdOut.printf("promoting (%d, %d) to FULL\n", row, col);
-                        currentSiteIdx = getArrayIndex(row, col);
-                        openFull[currentSiteIdx] = SITE_STATE_FULL;
-                    } else {
-                        // do nothing
-                    }
-                }
-            }
-        }
 
         // check if there is a component that has a connection between a site in the top and a site in the bottom
         int bottomSite;
@@ -161,49 +217,12 @@ public class Percolation {
         return false; // there is no connection thus the system must not percolate
     }
 
-    public double getThreshold() {
-        // threshold is (# of open sites / # of total sites)
-        int numOpenSites = 0;
-        for (int i : openFull) {
-            if (i != SITE_STATE_CLOSED) {
-                numOpenSites++;
-            }
-        }
-        int numTotalSites = openFull.length;
-
-        return (double) numOpenSites / numTotalSites;
-    }
-
-    private boolean hasConnectionToOpenTopRowSite(int row, int col) {
-        validateIndices(row, col);
-
-        int newSiteIdx = getArrayIndex(row, col);
-        // iterate through top row
-        for (int currentCol = 1; currentCol <= gridSize; currentCol++) {
-            // if current column's top-most site is full
-            if (isFull(1, currentCol)) {
-                // check if the target site is connected to this full site
-                //System.out.println("site (1, " + currentCol + ") is full");
-                int currentColArrayIndex = getArrayIndex(1, currentCol);
-                //System.out.println("newSiteIdx " + newSiteIdx + " is connected to currentColArrayIndex " + currentColArrayIndex + "?");
-                if (map.connected(newSiteIdx, currentColArrayIndex)) {
-                    //System.out.println("yes");
-                    return true;
-                } else {
-                    //System.out.println("no");
-                }
-            }
-
-        }
-        return false;
-    }
-
     public static void main(String[] args) {
         // test client (optional)
 
-        Test2x2();
+        //Test2x2();
 
-        Test3x3();
+        //Test3x3();
 
         Test5x5();
     }

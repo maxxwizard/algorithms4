@@ -7,9 +7,9 @@ import edu.princeton.cs.algs4.StdStats;
  */
 
 public class PercolationStats {
-    double[] thresholds;
-    int n, trials;
-    final double zValue = 1.96;
+    private double[] thresholds;
+    private int n, trials;
+    private final double zValue = 1.96;
 
     // perform trials independent experiments on an n-by-n grid
     public PercolationStats(int n, int trials) {
@@ -25,20 +25,29 @@ public class PercolationStats {
 
         thresholds = new double[trials];
         int randomRow, randomCol;
-        double thres;
+
         for (int i = 0; i < trials; i++) {
-            StdOut.printf("Trial %d...\n", i);
+            //StdOut.printf("Trial %d...\n", i);
+
+            int numOpenSites = 0;
+
             Percolation p = new Percolation(n);
             // now spawn a random site until the system percolates
             while (!p.percolates()) {
                 randomRow = StdRandom.uniform(1, n+1);
                 randomCol = StdRandom.uniform(1, n+1);
-                p.open(randomRow, randomCol);
+                if (p.isOpen(randomRow, randomCol)) {
+                    // do nothing
+                } else {
+                    p.open(randomRow, randomCol);
+                    numOpenSites++;
+                }
             }
-            // system must be percolating now so store its threshold
-            thres = p.getThreshold();
-            thresholds[i] = thres;
-            StdOut.printf("Threshold: %f\n", thres);
+            // system must be percolating now so store its threshold (# of open sites / # of total sites)
+            int numTotalSites = n*n;
+            double threshold = (double) numOpenSites / numTotalSites;
+            thresholds[i] = threshold;
+            //StdOut.printf("Threshold: %f\n", threshold);
         }
     }
 
