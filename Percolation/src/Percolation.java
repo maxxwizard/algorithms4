@@ -57,15 +57,13 @@ public class Percolation {
 
     // tries to union a neighboring site if site node exists
     private void tryUnionNeighbor(int newSiteRow, int newSiteCol, int neighborRow, int neighborCol) {
-        try {
+        if (validateIndicesNoThrow(neighborRow, neighborCol)) {
             if (isOpen(neighborRow, neighborCol)) {
                 int newSiteIdx = getArrayIndex(newSiteRow, newSiteCol);
                 int neighborIdx = getArrayIndex(neighborRow, neighborCol);
                 //System.out.println("tryUnionNeighbor: newSiteIdx=" + newSiteIdx + ", neighborIdx=" + neighborIdx);
                 map.union(newSiteIdx, neighborIdx);
             }
-        } catch (IndexOutOfBoundsException e) {
-            // do nothing
         }
     }
 
@@ -109,6 +107,14 @@ public class Percolation {
         if (i < 1 || i > gridSize || j < 1 || j > gridSize) {
             throw new java.lang.IndexOutOfBoundsException();
         }
+    }
+
+    // true if valid indices, false otherwise
+    private boolean validateIndicesNoThrow(int i, int j) {
+        if (i < 1 || i > gridSize || j < 1 || j > gridSize) {
+            return false;
+        }
+        return true;
     }
 
     private int getArrayIndex(int row, int col) {
