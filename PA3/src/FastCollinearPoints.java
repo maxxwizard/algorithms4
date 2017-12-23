@@ -54,8 +54,8 @@ public class FastCollinearPoints {
             // if same slope
             //   add to streak
             // else (different slope)
-            //  if our streak qualifies, add it as a line segment and continue searching
-            //  reset streak and overwrite the streak slope
+            //   if our streak qualifies, add it as a line segment - reset streak - and continue searching
+            //   else reset streak and overwrite the streak slope
             for (int j = 0; j < sortedPoints.length; j++) {
                 Point currentPoint = sortedPoints[j];
                 currentSlope = origin.slopeTo(currentPoint);
