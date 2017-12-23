@@ -14,8 +14,8 @@ import edu.princeton.cs.algs4.StdOut;
 
 public class Point implements Comparable<Point> {
 
-    private final int x;     // x-coordinate of this point
-    private final int y;     // y-coordinate of this point
+    public final int x;     // x-coordinate of this point
+    public final int y;     // y-coordinate of this point
 
     /**
      * Initializes a new point.
@@ -60,10 +60,25 @@ public class Point implements Comparable<Point> {
      * @return the slope between this point and the specified point
      */
     public double slopeTo(Point that) {
-        if (this.y == that.y && this.x == that.y) {
-            return 1.0;
+        // the two Points are the same
+        if (this.y == that.y && this.x == that.x) {
+            return Double.NEGATIVE_INFINITY;
         }
-        return 1.0;
+
+        // horizontal line
+        if (that.y == this.y) {
+            return 0;
+        }
+
+        // vertical line
+        if (that.x == this.x) {
+            return Double.POSITIVE_INFINITY;
+        }
+
+        // calculate slope
+        double slope = (double)(that.y - this.y) / (double)(that.x - this.x);
+
+        return slope;
     }
 
     /**
@@ -79,8 +94,41 @@ public class Point implements Comparable<Point> {
      *         argument point
      */
     public int compareTo(Point that) {
-        /* YOUR CODE HERE */
+        if (this.y < that.y) {
+            return -1;
+        } else if (this.y > that.y) {
+            return 1;
+        } else if (this.y == that.y && this.x < that.x) {
+            return -1;
+        } else if (this.y == that.y && this.x > that.x) {
+            return 1;
+        }
+
+        // at this point, x and y of both Points must be the same
         return 0;
+    }
+
+    public class SlopeOrderComparator implements Comparator<Point> {
+        private Point point;
+
+        public SlopeOrderComparator(Point startingPoint) {
+            point = startingPoint;
+        }
+
+        public int compare(Point p1, Point p2) {
+            // calculate slope between invoking point and other points
+            double slopeToP1 = point.slopeTo(p1);
+            double slopeToP2 = point.slopeTo(p2);
+
+            if (slopeToP1 > slopeToP2)
+                return 1;
+
+            if (slopeToP1 < slopeToP2)
+                return -1;
+
+            // slopes are equal
+            return 0;
+        }
     }
 
     /**
@@ -90,13 +138,8 @@ public class Point implements Comparable<Point> {
      * @return the Comparator that defines this ordering on points
      */
     public Comparator<Point> slopeOrder() {
-        /* YOUR CODE HERE */
-        return new Comparator<Point>() {
-            @Override
-            public int compare(Point o1, Point o2) {
-                return 0;
-            }
-        };
+
+        return new SlopeOrderComparator(this);
     }
 
     /**
@@ -111,10 +154,11 @@ public class Point implements Comparable<Point> {
         return "(" + x + ", " + y + ")";
     }
 
-    /**
-     * Unit tests the Point data type.
-     */
-    public static void main(String[] args) {
-        StdOut.print("lol");
+    @Override
+    public boolean equals(Object obj) {
+        Point that = (Point)obj;
+
+        return (this.x == that.x && this.y == that.y);
     }
+
 }
