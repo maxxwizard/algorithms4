@@ -10,12 +10,11 @@
 
 import java.util.Comparator;
 import edu.princeton.cs.algs4.StdDraw;
-import edu.princeton.cs.algs4.StdOut;
 
 public class Point implements Comparable<Point> {
 
-    public final int x;     // x-coordinate of this point
-    public final int y;     // y-coordinate of this point
+    private final int x;     // x-coordinate of this point
+    private final int y;     // y-coordinate of this point
 
     /**
      * Initializes a new point.
@@ -108,10 +107,10 @@ public class Point implements Comparable<Point> {
         return 0;
     }
 
-    public class SlopeOrderComparator implements Comparator<Point> {
+    private class SlopeOrderComparator implements Comparator<Point> {
         private Point point;
 
-        public SlopeOrderComparator(Point startingPoint) {
+        private SlopeOrderComparator(Point startingPoint) {
             point = startingPoint;
         }
 
@@ -152,13 +151,6 @@ public class Point implements Comparable<Point> {
     public String toString() {
         /* DO NOT MODIFY */
         return "(" + x + ", " + y + ")";
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        Point that = (Point)obj;
-
-        return (this.x == that.x && this.y == that.y);
     }
 
 }

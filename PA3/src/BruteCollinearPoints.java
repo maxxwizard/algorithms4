@@ -1,9 +1,10 @@
-import java.util.*;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.List;
+import java.util.ArrayList;
 
 public class BruteCollinearPoints {
 
-    private HashMap<Double /* slope */, List<Point> /* collinear points */> map;
+    private List<LineSegment> segments;
 
     // finds all line segments containing 4 points
     public BruteCollinearPoints(Point[] points) {
@@ -15,40 +16,41 @@ public class BruteCollinearPoints {
         if (points.length == 0)
             throw new java.lang.IllegalArgumentException();
 
-        // init our hashmap
-        map = new HashMap<>();
+        // null entry in array
+        for (Point p : points) {
+            if (p == null) {
+                throw new java.lang.IllegalArgumentException();
+            }
+        }
+
+        // init our segments storage
+        segments = new ArrayList<>();
+
+        Point[] sortedPoints = points.clone();
+        Arrays.sort(sortedPoints);
 
         // generate all combinations of (points choose 4)
-        for (int i = 0; i < points.length; i++) {
-            for (int j = i+1; j < points.length; j++) {
-                double slopeToJ = points[i].slopeTo(points[j]);
-                for (int k = j+1; k < points.length; k++) {
-                    double slopeToK = points[j].slopeTo(points[k]);
+        for (int i = 0; i < sortedPoints.length; i++) {
+            for (int j = i+1; j < sortedPoints.length; j++) {
+                double slopeToJ = sortedPoints[i].slopeTo(sortedPoints[j]);
+                for (int k = j+1; k < sortedPoints.length; k++) {
+                    double slopeToK = sortedPoints[j].slopeTo(sortedPoints[k]);
                     if (slopeToJ == slopeToK) {
-                        for (int l = k+1; l < points.length; l++) {
-                            double slopeToL = points[k].slopeTo(points[l]);
+                        for (int l = k+1; l < sortedPoints.length; l++) {
+                            double slopeToL = sortedPoints[k].slopeTo(sortedPoints[l]);
                             if (slopeToL == slopeToK) {
-                                Point p1 = points[i];
-                                Point p2 = points[j];
-                                Point p3 = points[k];
-                                Point p4 = points[l];
+                                Point p1 = sortedPoints[i];
+                                Point p2 = sortedPoints[j];
+                                Point p3 = sortedPoints[k];
+                                Point p4 = sortedPoints[l];
 
                                 // ensure all points are unique
                                 if (!pointsAreUnique(p1, p2, p3, p4))
                                     throw new java.lang.IllegalArgumentException();
 
                                 // slope across 4 points are the same due to previous "if" comparisons
-                                List<Point> list;
-                                if (map.containsKey(slopeToL)) {
-                                    list = map.get(slopeToL);
-                                } else {
-                                    list = new ArrayList<>();
-                                    map.put(slopeToL, list);
-                                }
-                                list.add(p1);
-                                list.add(p2);
-                                list.add(p3);
-                                list.add(p4);
+                                // add the segment using the lowest and highest points
+                                segments.add(new LineSegment(p1, p4));
                             }
                         }
                     }
@@ -69,21 +71,12 @@ public class BruteCollinearPoints {
 
     // the number of line segments
     public int numberOfSegments() {
-        return segments().length;
+        return segments.size();
     }
 
     // the line segments
     public LineSegment[] segments() {
-        ArrayList<LineSegment> segments = new ArrayList<LineSegment>();
-
-        for (Double key : map.keySet()) {
-            List<Point> list = map.get(key);
-            Collections.sort(list);
-            LineSegment newSegment = new LineSegment(list.get(0), list.get(list.size()-1));
-            segments.add(newSegment);
-        }
-
-        LineSegment[] array = new LineSegment[segments.size()];
-        return segments.toArray(array);
+        LineSegment[] segmentsArray = new LineSegment[segments.size()];
+        return segments.toArray(segmentsArray);
     }
 }

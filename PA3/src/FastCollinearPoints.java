@@ -1,11 +1,11 @@
 import edu.princeton.cs.algs4.StdOut;
-import edu.princeton.cs.algs4.WeightedQuickUnionUF;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class FastCollinearPoints {
 
-    List<LineSegment> segments;
+    private ArrayList<LineSegment> segments;
 
     // finds all line segments containing 4 or more points
     public FastCollinearPoints(Point[] points) {
@@ -24,11 +24,13 @@ public class FastCollinearPoints {
         Point[] sortedPoints = points.clone();
 
         // iterate assuming current point is the origin
+        /*
         System.out.println(String.format("processing %d points", points.length));
         for (int i = 0; i < points.length; i++) {
             System.out.print(points[i] + " ");
         }
         System.out.println();
+        */
         for (int i = 0; i < points.length; i++) {
 
             Point origin = points[i];
@@ -71,6 +73,8 @@ public class FastCollinearPoints {
                 else {
                     if (checkForValidStreak(origin, i, streak)) {
                         streak.clear();
+                        currentStreakSlope = currentSlope;
+                        streak.add(currentPoint);
                         continue;
                     }
                     else {
@@ -96,24 +100,25 @@ public class FastCollinearPoints {
             //System.out.println(String.format("\nStreak of %d points found:", streak.size()));
 
             // add origin to streak
+            //StdOut.println("origin = " + origin);
             streak.add(origin);
 
             Collections.sort(streak);
             for (int i = 0; i < streak.size(); i++) {
-                StdOut.println(streak.get(i));
+                //StdOut.println(streak.get(i));
             }
 
             // only add this line segment if the origin is the lowest in the sorted array
             // this avoids permutations of this line
             Point lowest = streak.get(0);
             Point highest = streak.get(streak.size()-1);
-            if (origin.equals(lowest)) {
+            if (origin.compareTo(lowest) == 0) {
                 LineSegment newSegment = new LineSegment(lowest, highest);
                 segments.add(newSegment);
                 //StdOut.println(String.format("adding LineSegment %s", newSegment));
             }
 
-            StdOut.println();
+            //StdOut.println();
             return true;
         }
 
