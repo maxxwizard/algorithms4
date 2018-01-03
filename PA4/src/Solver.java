@@ -83,17 +83,6 @@ public class Solver {
         }
     }
 
-    private static class BoardComparator implements Comparator<Board> {
-
-        public int compare(Board b1, Board b2) {
-            // compare based on Manhattan priorities
-            int b1mp = b1.manhattan();
-            int b2mp = b2.manhattan();
-
-            return Integer.compare(b1mp, b2mp);
-        }
-    }
-
     // find a solution to the initial board (using the A* algorithm)
     public Solver(Board initial) {
 
@@ -134,37 +123,8 @@ public class Solver {
         return null;
     }
 
-    private static void UnitTests() {
-        // test BoardComparator()
-        BoardComparator comparator = new BoardComparator();
-
-        int[][] b = new int[3][3];
-        b[0][0]= 8;
-        b[0][1]= 1;
-        b[0][2]= 3;
-        b[1][0]= 4;
-        b[1][1]= 0;
-        b[1][2]= 2;
-        b[2][0]= 7;
-        b[2][1]= 6;
-        b[2][2]= 5;
-
-        Board board1 = new Board(b);
-        assert(board1.manhattan() == 10);
-        Board board2 = board1.twin();
-        assert(board2.manhattan() == 8);
-        assert(comparator.compare(board1, board2) > 0);
-
-        // test Solver()
-        // test isSolvable()
-        // test moves()
-        // test solution()
-    }
-
     // solve a slider puzzle (given below)
     public static void main(String[] args) {
-
-        //UnitTests();
 
         // create initial board from file
         In in = new In(args[0]);
