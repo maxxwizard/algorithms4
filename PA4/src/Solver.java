@@ -36,6 +36,7 @@ public class Solver {
                 true if this puzzle instance has reached goal board, false otherwise
          */
         public void step() {
+
             currentNode = pq.delMin();
             // StdOut.println(String.format("removed from PQ (moves = %d, Manhattan = %d, priority = %d):\n%s", currentNode.moves, currentNode.manhattan, currentNode.moves+currentNode.manhattan, currentNode.board.toString()));
             for (Board neighbor : currentNode.neighbors) {
@@ -115,7 +116,7 @@ public class Solver {
         // we loop until one of the two puzzles has reached its goal board
         do {
             originalPuzzle.step();
-            //twinPuzzle.step();
+            twinPuzzle.step();
         } while (!originalPuzzle.isSolved() && !twinPuzzle.isSolved());
 
         // when we reach this point, it means either the original or the twin has been solved
