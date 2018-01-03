@@ -8,7 +8,7 @@ public class Solver {
 
     private MinPQ<Board> pq;
 
-    private class BoardComparator implements Comparator<Board> {
+    private static class BoardComparator implements Comparator<Board> {
 
         public int compare(Board b1, Board b2) {
             // compare based on Manhattan priorities
@@ -40,8 +40,39 @@ public class Solver {
         throw new java.lang.UnsupportedOperationException();
     }
 
+    private static void UnitTests() {
+        // test BoardComparator()
+        BoardComparator comparator = new BoardComparator();
+
+        int[][] b = new int[3][3];
+        b[0][0]= 8;
+        b[0][1]= 1;
+        b[0][2]= 3;
+        b[1][0]= 4;
+        b[1][1]= 0;
+        b[1][2]= 2;
+        b[2][0]= 7;
+        b[2][1]= 6;
+        b[2][2]= 5;
+
+        Board board1 = new Board(b);
+        assert(board1.manhattan() == 10);
+        Board board2 = board1.twin();
+        assert(board2.manhattan() == 8);
+        assert(comparator.compare(board1, board2) > 0);
+
+        // test Solver()
+        // test isSolvable()
+        // test moves()
+        // test solution()
+    }
+
     // solve a slider puzzle (given below)
     public static void main(String[] args) {
+
+        UnitTests();
+
+        /*
         // create initial board from file
         In in = new In(args[0]);
         int n = in.readInt();
@@ -62,5 +93,6 @@ public class Solver {
             for (Board board : solver.solution())
                 StdOut.println(board);
         }
+        */
     }
 }
