@@ -1,9 +1,10 @@
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.MinPQ;
 import edu.princeton.cs.algs4.StdOut;
-import edu.princeton.cs.algs4.Queue;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Comparator;
+import java.util.Collections;
 
 public class Solver {
 
