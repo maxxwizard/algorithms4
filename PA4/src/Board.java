@@ -5,8 +5,6 @@ import java.util.Arrays;
 public class Board {
 
     private final int[][] blocks;
-    private final int n;
-    private final Coordinate emptyBlock;
 
     // construct a board from an n-by-n array of blocks
     // (where blocks[i][j] = block in row i, column j)
@@ -14,28 +12,23 @@ public class Board {
         if (blocks == null)
             throw new java.lang.IllegalArgumentException();
 
-        this.blocks = blocks;
-
-        // we refer to dimension() often as 'n' so save it as such
-        this.n = blocks.length;
-
-        // we pre-calculate this for use in neighbors()
-        this.emptyBlock = findEmptyBlock();
+        // deep-clone
+        this.blocks = deepClone(blocks);
     }
 
     // board dimension n
     public int dimension() {
-        return n;
+        return blocks.length;
     }
 
     // returns the expected number for a given row i and column j
     private int expectedNumber(int i, int j) {
 
         // each position should be i*n + j + 1, except very last block
-        if (i == n-1 && j == n-1) {
+        if (i == dimension()-1 && j == dimension()-1) {
             return 0;
         } else {
-            return i*n + j + 1;
+            return i*dimension() + j + 1;
         }
     }
 
@@ -44,10 +37,10 @@ public class Board {
         int blocksOutOfPlace = 0;
         int expectedNum, actualNumber;
 
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
+        for (int i = 0; i < dimension(); i++) {
+            for (int j = 0; j < dimension(); j++) {
                 // we don't care about the last element because that's where the empty block should be
-                if (!(i == n-1 && j == n-1)) {
+                if (!(i == dimension()-1 && j == dimension()-1)) {
                     expectedNum = expectedNumber(i, j);
                     actualNumber = blocks[i][j];
 
@@ -68,13 +61,13 @@ public class Board {
 
         // calculate only if not empty block
         if (blockValue != 0) {
-            int goalRow = blockValue / n;
-            int goalColumn = (blockValue % n) - 1;
+            int goalRow = blockValue / dimension();
+            int goalColumn = (blockValue % dimension()) - 1;
 
             // there's some wraparound trickiness because array indices start at 0 but the first element starts at 1
             if (goalColumn < 0) {
                 goalRow--;
-                goalColumn += n;
+                goalColumn += dimension();
             }
 
             int distanceRow = Math.abs(goalRow - i);
@@ -90,8 +83,8 @@ public class Board {
     public int manhattan() {
         int totalDistance = 0;
 
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
+        for (int i = 0; i < dimension(); i++) {
+            for (int j = 0; j < dimension(); j++) {
                 totalDistance += manhattanDistance(i, j);
             }
         }
@@ -107,20 +100,43 @@ public class Board {
     // a board that is obtained by exchanging any pair of blocks
     public Board twin() {
 
-        // we'll swap first and last blocks
-        Coordinate first = new Coordinate(0, 0);
-        Coordinate last = new Coordinate(n-1, n-1);
+        // choose 2 blocks so long as they are not the empty block
+
+        Coordinate first = null, last = null;
+
+        // iterate forward for first block
+        for (int i = 0; i < dimension() && first == null; i++) {
+            for (int j = 0; j < dimension() && first == null; j++) {
+                if (blocks[i][j] != 0) {
+                    first = new Coordinate(i, j);
+                }
+            }
+        }
+
+        // iterate backwards for last block
+        for (int i = dimension()-1; i >= 0 && last == null; i--) {
+            for (int j = dimension()-1; j >= 0 && last == null; j--) {
+                if (blocks[i][j] != 0) {
+                    last = new Coordinate(i, j);
+                }
+            }
+        }
 
         return twin(first, last);
+    }
+
+    private static int[][] deepClone(int[][] blocks) {
+        int[][] clonedBlocks = new int[blocks.length][blocks.length];
+        for (int i = 0; i < blocks.length; i++) {
+            clonedBlocks[i] = Arrays.copyOf(blocks[i], blocks.length);
+        }
+        return clonedBlocks;
     }
 
     // returns a Board where blocks at Coordinate a and Coordinate b are exchanged
     private Board twin(Coordinate a, Coordinate b) {
         // deep-clone
-        int[][] twinBlocks = new int[n][];
-        for (int i = 0; i < n; i++) {
-            twinBlocks[i] = Arrays.copyOf(blocks[i], n);
-        }
+        int[][] twinBlocks = deepClone(this.blocks);
 
         // swap blocks at coordinates a and b
         int temp = twinBlocks[a.i][a.j];
@@ -133,8 +149,13 @@ public class Board {
     // does this board equal y?
     public boolean equals(Object y) {
 
+        // object is null or not of type Board
         if (!(y instanceof Board))
             return false;
+
+        // object is itself
+        if (this == y)
+            return true;
 
         Board that = (Board) y;
 
@@ -144,8 +165,8 @@ public class Board {
         }
 
         // compare each block
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
+        for (int i = 0; i < dimension(); i++) {
+            for (int j = 0; j < dimension(); j++) {
                 if (this.blocks[i][j] != that.blocks[i][j]) {
                     return false;
                 }
@@ -155,11 +176,31 @@ public class Board {
         return true;
     }
 
+    private class Coordinate {
+        private final int i;
+        private final int j;
+
+        public Coordinate(int i, int j) {
+            this.i = i;
+            this.j = j;
+        }
+    }
+
     // all neighboring boards
     // basically, all boards where one of the blocks adjacent (not diagonal) to the empty block is swapped with it
     public Iterable<Board> neighbors() {
 
-        ArrayList<Board> list = new ArrayList<>();
+        ArrayList<Board> list = new ArrayList<>(4);
+
+        // find empty block
+        Coordinate emptyBlock = new Coordinate(0,0);
+        for (int i = 0; i < dimension(); i++) {
+            for (int j = 0; j < dimension(); j++) {
+                if (blocks[i][j] == 0) {
+                    emptyBlock = new Coordinate(i, j);
+                }
+            }
+        }
 
         // calculate adjacent boards
         Coordinate above = new Coordinate(emptyBlock.i-1, emptyBlock.j);
@@ -193,48 +234,20 @@ public class Board {
 
     // given row i and column j, is the coordinate inside this board's dimensions?
     private boolean isWithinBounds(Coordinate c) {
-        return c.i >= 0 && c.j >= 0 && c.i < n && c.j < n;
+        return c.i >= 0 && c.j >= 0 && c.i < dimension() && c.j < dimension();
     }
 
-    private class Coordinate {
-        private final int i;
-        private final int j;
-
-        public Coordinate(int i, int j) {
-            this.i = i;
-            this.j = j;
-        }
-    }
-
-    private Coordinate findEmptyBlock() {
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                if (blocks[i][j] == 0) {
-                    return new Coordinate(i, j);
-                }
-            }
-        }
-
-        // there should always be an empty block
-        return null;
-    }
 
     // string representation of this board (in the output format specified below)
     public String toString() {
 
         StringBuilder sb = new StringBuilder();
 
-        // we need to pad according to how big the puzzle is
-        int maxBlockNumber = expectedNumber(n-1, n-2);
-        int numSpaces = 0;
-        while (maxBlockNumber > 0) {
-            maxBlockNumber /= 10;
-            numSpaces++;
-        }
+        sb.append(dimension() + "\n");
 
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                sb.append(String.format("%" + numSpaces + "d ", blocks[i][j]));
+        for (int i = 0; i < dimension(); i++) {
+            for (int j = 0; j < dimension(); j++) {
+                sb.append(String.format("%2d ", blocks[i][j]));
             }
             sb.append("\n");
         }
@@ -257,6 +270,13 @@ public class Board {
         b[2][2] = 5;
         Board board1 = new Board(b);
         Board board1Dup = new Board(b);
+
+        // test Board's immutability
+        b[1][1] = 5;
+        b[2][2] = 0;
+        Board board2 = new Board(b);
+        assert(!board1.equals(board2));
+        assert(board1.hamming() != board2.hamming());
 
         int[][] bAbove = new int[3][3];
         bAbove[0][0] = 8;

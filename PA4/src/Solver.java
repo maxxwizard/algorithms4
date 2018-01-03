@@ -37,9 +37,9 @@ public class Solver {
          */
         public void step() {
             currentNode = pq.delMin();
-            // StdOut.println(String.format("removed from PQ (move #%d):\n%s", currentNode.moves, currentNode.board.toString()));
+            // StdOut.println(String.format("removed from PQ (moves = %d, Manhattan = %d, priority = %d):\n%s", currentNode.moves, currentNode.manhattan, currentNode.moves+currentNode.manhattan, currentNode.board.toString()));
             for (Board neighbor : currentNode.neighbors) {
-                if (!neighbor.equals(currentNode.prev)) { // ensure we've never seen this board before
+                if (!seenBefore(currentNode.prev, neighbor)) { // ensure we've never seen this board before
                     pq.insert(new SearchNode(neighbor, currentNode.moves+1, currentNode));
                     // StdOut.println("added to PQ:\n" + neighbor.toString());
                 }
@@ -52,6 +52,24 @@ public class Solver {
             if (currentNode.isGoal) {
                 solved = true;
             }
+        }
+
+        // walk up the entire chain to ensure we've never seen this board before
+        private boolean seenBefore(SearchNode parent, Board neighbor) {
+            if (parent == null)
+            {
+                return false;
+            }
+            else {
+                SearchNode iter = parent;
+                while (iter != null) {
+                    if (neighbor.equals(iter.board))
+                        return true;
+                    iter = iter.prev;
+                }
+            }
+
+            return false;
         }
     }
 
@@ -97,7 +115,7 @@ public class Solver {
         // we loop until one of the two puzzles has reached its goal board
         do {
             originalPuzzle.step();
-            twinPuzzle.step();
+            //twinPuzzle.step();
         } while (!originalPuzzle.isSolved() && !twinPuzzle.isSolved());
 
         // when we reach this point, it means either the original or the twin has been solved
