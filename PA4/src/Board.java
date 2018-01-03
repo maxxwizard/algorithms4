@@ -1,11 +1,14 @@
 import edu.princeton.cs.algs4.StdOut;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.function.Predicate;
 
 public class Board {
 
     private final int[][] blocks;
     private final int n;
+    private final Coordinate emptyBlock;
 
     // construct a board from an n-by-n array of blocks
     // (where blocks[i][j] = block in row i, column j)
@@ -14,7 +17,12 @@ public class Board {
             throw new java.lang.IllegalArgumentException();
 
         this.blocks = blocks;
+
+        // we refer to dimension() often as 'n' so save it as such
         this.n = blocks.length;
+
+        // we pre-calculate this for use in neighbors()
+        this.emptyBlock = findEmptyBlock();
     }
 
     // board dimension n
@@ -103,16 +111,25 @@ public class Board {
     // a board that is obtained by exchanging any pair of blocks
     public Board twin() {
 
+        // we'll swap first and last blocks
+        Coordinate first = new Coordinate(0, 0);
+        Coordinate last = new Coordinate(n-1, n-1);
+
+        return twin(first, last);
+    }
+
+    // returns a Board where blocks at Coordinate a and Coordinate b are exchanged
+    private Board twin(Coordinate a, Coordinate b) {
         // deep-clone
         int[][] twinBlocks = new int[n][];
         for (int i = 0; i < n; i++) {
             twinBlocks[i] = Arrays.copyOf(blocks[i], n);
         }
 
-        // just swap first and last block
-        int temp = twinBlocks[0][0];
-        twinBlocks[0][0] = twinBlocks[n-1][n-1];
-        twinBlocks[n-1][n-1] = temp;
+        // swap blocks at coordinates a and b
+        int temp = twinBlocks[a.i][a.j];
+        twinBlocks[a.i][a.j] = twinBlocks[b.i][b.j];
+        twinBlocks[b.i][b.j] = temp;
 
         return new Board(twinBlocks);
     }
@@ -139,8 +156,71 @@ public class Board {
     }
 
     // all neighboring boards
+    // basically, all boards where one of the blocks adjacent (not diagonal) to the empty block is swapped with it
     public Iterable<Board> neighbors() {
-        throw new java.lang.UnsupportedOperationException();
+
+        ArrayList<Board> list = new ArrayList<>();
+
+        // calculate adjacent boards
+        Coordinate above = new Coordinate(emptyBlock.i-1, emptyBlock.j);
+        Coordinate below = new Coordinate(emptyBlock.i+1, emptyBlock.j);
+        Coordinate left = new Coordinate(emptyBlock.i, emptyBlock.j-1);
+        Coordinate right = new Coordinate(emptyBlock.i, emptyBlock.j+1);
+
+        // add adjacent boards to list if valid
+        if (isWithinBounds(above)) {
+            Board aboveBoard = twin(emptyBlock, above);
+            list.add(aboveBoard);
+        }
+
+        if (isWithinBounds(below)) {
+            Board belowBoard = twin(emptyBlock, below);
+            list.add(belowBoard);
+        }
+
+        if (isWithinBounds(left)) {
+            Board leftBoard = twin(emptyBlock, left);
+            list.add(leftBoard);
+        }
+
+        if (isWithinBounds(right)) {
+            Board rightBoard = twin(emptyBlock, right);
+            list.add(rightBoard);
+        }
+
+        return list;
+    }
+
+    // given row i and column j, is the coordinate inside this board's dimensions?
+    private boolean isWithinBounds(int i, int j) {
+        return i < n && j < n;
+    }
+
+    private boolean isWithinBounds(Coordinate c) {
+        return c.i < n && c.j < n;
+    }
+
+    private class Coordinate {
+        private final int i;
+        private final int j;
+
+        public Coordinate(int i, int j) {
+            this.i = i;
+            this.j = j;
+        }
+    }
+
+    private Coordinate findEmptyBlock() {
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (blocks[i][j] == 0) {
+                    return new Coordinate(i, j);
+                }
+            }
+        }
+
+        // there should always be an empty block
+        return null;
     }
 
     // string representation of this board (in the output format specified below)
@@ -171,15 +251,62 @@ public class Board {
         b[2][0]= 7;
         b[2][1]= 6;
         b[2][2]= 5;
-
         Board board1 = new Board(b);
-        Board board2 = new Board(b);
+        Board board1Dup = new Board(b);
+
+        int[][] bAbove = new int[3][3];
+        bAbove[0][0]= 8;
+        bAbove[0][1]= 0;
+        bAbove[0][2]= 3;
+        bAbove[1][0]= 4;
+        bAbove[1][1]= 1;
+        bAbove[1][2]= 2;
+        bAbove[2][0]= 7;
+        bAbove[2][1]= 6;
+        bAbove[2][2]= 5;
+        Board board1Above = new Board(bAbove);
+
+        int[][] bBelow = new int[3][3];
+        bBelow[0][0]= 8;
+        bBelow[0][1]= 1;
+        bBelow[0][2]= 3;
+        bBelow[1][0]= 4;
+        bBelow[1][1]= 6;
+        bBelow[1][2]= 2;
+        bBelow[2][0]= 7;
+        bBelow[2][1]= 0;
+        bBelow[2][2]= 5;
+        Board board1Below = new Board(bBelow);
+
+        int[][] bLeft = new int[3][3];
+        bLeft[0][0]= 8;
+        bLeft[0][1]= 1;
+        bLeft[0][2]= 3;
+        bLeft[1][0]= 0;
+        bLeft[1][1]= 4;
+        bLeft[1][2]= 2;
+        bLeft[2][0]= 7;
+        bLeft[2][1]= 6;
+        bLeft[2][2]= 5;
+        Board board1Left = new Board(bLeft);
+
+        int[][] bRight = new int[3][3];
+        bRight[0][0]= 8;
+        bRight[0][1]= 1;
+        bRight[0][2]= 3;
+        bRight[1][0]= 4;
+        bRight[1][1]= 2;
+        bRight[1][2]= 0;
+        bRight[2][0]= 7;
+        bRight[2][1]= 6;
+        bRight[2][2]= 5;
+        Board board1Right = new Board(bRight);
 
         // test toString()
         StdOut.println(board1.toString());
 
         // test equals()
-        assert(board1.equals(board2));
+        assert(board1.equals(board1Dup));
 
         // test twin()
         assert(!board1.equals(board1.twin()));
@@ -190,7 +317,15 @@ public class Board {
         // test Manhattan()
         assert(board1.manhattan() == 10);
 
-        // test neighbors()
-
+        // test neighbors() - we should have 4 neighbors with our example
+        ArrayList<Board> actualNeighbors = new ArrayList<>();
+        actualNeighbors.add(board1Above);
+        actualNeighbors.add(board1Below);
+        actualNeighbors.add(board1Left);
+        actualNeighbors.add(board1Right);
+        ArrayList<Board> calculatedNeighbors = (ArrayList) board1.neighbors();
+        Predicate<Board> boardPredicate = p -> actualNeighbors.contains(p);
+        calculatedNeighbors.removeIf(boardPredicate);
+        assert(calculatedNeighbors.size() == 0);
     }
 }
