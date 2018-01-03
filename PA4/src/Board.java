@@ -1,14 +1,12 @@
 import edu.princeton.cs.algs4.StdOut;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.function.Predicate;
 
 public class Board {
 
     private final int[][] blocks;
     private final int n;
     private final Coordinate emptyBlock;
-    private final int manhattan;
 
     // construct a board from an n-by-n array of blocks
     // (where blocks[i][j] = block in row i, column j)
@@ -23,9 +21,6 @@ public class Board {
 
         // we pre-calculate this for use in neighbors()
         this.emptyBlock = findEmptyBlock();
-
-        // pre-calculate manhattan
-        this.manhattan = calculateManhattan();
     }
 
     // board dimension n
@@ -46,7 +41,6 @@ public class Board {
 
     // number of blocks out of place
     public int hamming() {
-
         int blocksOutOfPlace = 0;
         int expectedNum, actualNumber;
 
@@ -94,10 +88,6 @@ public class Board {
 
     // sum of Manhattan distances between blocks and goal
     public int manhattan() {
-        return manhattan;
-    }
-
-    private int calculateManhattan() {
         int totalDistance = 0;
 
         for (int i = 0; i < n; i++) {
@@ -142,6 +132,10 @@ public class Board {
 
     // does this board equal y?
     public boolean equals(Object y) {
+
+        if (!(y instanceof Board))
+            return false;
+
         Board that = (Board) y;
 
         // check both boards' sizes are same
@@ -230,9 +224,17 @@ public class Board {
 
         StringBuilder sb = new StringBuilder();
 
+        // we need to pad according to how big the puzzle is
+        int maxBlockNumber = expectedNumber(n-1, n-2);
+        int numSpaces = 0;
+        while (maxBlockNumber > 0) {
+            maxBlockNumber /= 10;
+            numSpaces++;
+        }
+
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                sb.append(String.format("%2d", blocks[i][j]));
+                sb.append(String.format("%" + numSpaces + "d ", blocks[i][j]));
             }
             sb.append("\n");
         }
@@ -244,64 +246,64 @@ public class Board {
     public static void main(String[] args) {
 
         int[][] b = new int[3][3];
-        b[0][0]= 8;
-        b[0][1]= 1;
-        b[0][2]= 3;
-        b[1][0]= 4;
-        b[1][1]= 0;
-        b[1][2]= 2;
-        b[2][0]= 7;
-        b[2][1]= 6;
-        b[2][2]= 5;
+        b[0][0] = 8;
+        b[0][1] = 1;
+        b[0][2] = 3;
+        b[1][0] = 4;
+        b[1][1] = 0;
+        b[1][2] = 2;
+        b[2][0] = 7;
+        b[2][1] = 6;
+        b[2][2] = 5;
         Board board1 = new Board(b);
         Board board1Dup = new Board(b);
 
         int[][] bAbove = new int[3][3];
-        bAbove[0][0]= 8;
-        bAbove[0][1]= 0;
-        bAbove[0][2]= 3;
-        bAbove[1][0]= 4;
-        bAbove[1][1]= 1;
-        bAbove[1][2]= 2;
-        bAbove[2][0]= 7;
-        bAbove[2][1]= 6;
-        bAbove[2][2]= 5;
+        bAbove[0][0] = 8;
+        bAbove[0][1] = 0;
+        bAbove[0][2] = 3;
+        bAbove[1][0] = 4;
+        bAbove[1][1] = 1;
+        bAbove[1][2] = 2;
+        bAbove[2][0] = 7;
+        bAbove[2][1] = 6;
+        bAbove[2][2] = 5;
         Board board1Above = new Board(bAbove);
 
         int[][] bBelow = new int[3][3];
-        bBelow[0][0]= 8;
-        bBelow[0][1]= 1;
-        bBelow[0][2]= 3;
-        bBelow[1][0]= 4;
-        bBelow[1][1]= 6;
-        bBelow[1][2]= 2;
-        bBelow[2][0]= 7;
-        bBelow[2][1]= 0;
-        bBelow[2][2]= 5;
+        bBelow[0][0] = 8;
+        bBelow[0][1] = 1;
+        bBelow[0][2] = 3;
+        bBelow[1][0] = 4;
+        bBelow[1][1] = 6;
+        bBelow[1][2] = 2;
+        bBelow[2][0] = 7;
+        bBelow[2][1] = 0;
+        bBelow[2][2] = 5;
         Board board1Below = new Board(bBelow);
 
         int[][] bLeft = new int[3][3];
-        bLeft[0][0]= 8;
-        bLeft[0][1]= 1;
-        bLeft[0][2]= 3;
-        bLeft[1][0]= 0;
-        bLeft[1][1]= 4;
-        bLeft[1][2]= 2;
-        bLeft[2][0]= 7;
-        bLeft[2][1]= 6;
-        bLeft[2][2]= 5;
+        bLeft[0][0] = 8;
+        bLeft[0][1] = 1;
+        bLeft[0][2] = 3;
+        bLeft[1][0] = 0;
+        bLeft[1][1] = 4;
+        bLeft[1][2] = 2;
+        bLeft[2][0] = 7;
+        bLeft[2][1] = 6;
+        bLeft[2][2] = 5;
         Board board1Left = new Board(bLeft);
 
         int[][] bRight = new int[3][3];
-        bRight[0][0]= 8;
-        bRight[0][1]= 1;
-        bRight[0][2]= 3;
-        bRight[1][0]= 4;
-        bRight[1][1]= 2;
-        bRight[1][2]= 0;
-        bRight[2][0]= 7;
-        bRight[2][1]= 6;
-        bRight[2][2]= 5;
+        bRight[0][0] = 8;
+        bRight[0][1] = 1;
+        bRight[0][2] = 3;
+        bRight[1][0] = 4;
+        bRight[1][1] = 2;
+        bRight[1][2] = 0;
+        bRight[2][0] = 7;
+        bRight[2][1] = 6;
+        bRight[2][2] = 5;
         Board board1Right = new Board(bRight);
 
         // test toString()
@@ -325,23 +327,23 @@ public class Board {
         actualNeighbors.add(board1Below);
         actualNeighbors.add(board1Left);
         actualNeighbors.add(board1Right);
-        ArrayList<Board> calculatedNeighbors = (ArrayList) board1.neighbors();
-        Predicate<Board> boardPredicate = p -> actualNeighbors.contains(p);
-        calculatedNeighbors.removeIf(boardPredicate);
-        assert(calculatedNeighbors.size() == 0);
+        ArrayList<Board> calculatedNeighbors = (ArrayList<Board>) board1.neighbors();
+        calculatedNeighbors.removeIf(p -> actualNeighbors.contains(p));
+        assert(calculatedNeighbors.isEmpty());
 
         // test isGoal()
         int[][] goalBlocks = new int[3][3];
-        goalBlocks[0][0]= 1;
-        goalBlocks[0][1]= 2;
-        goalBlocks[0][2]= 3;
-        goalBlocks[1][0]= 4;
-        goalBlocks[1][1]= 5;
-        goalBlocks[1][2]= 6;
-        goalBlocks[2][0]= 7;
-        goalBlocks[2][1]= 8;
-        goalBlocks[2][2]= 0;
+        goalBlocks[0][0] = 1;
+        goalBlocks[0][1] = 2;
+        goalBlocks[0][2] = 3;
+        goalBlocks[1][0] = 4;
+        goalBlocks[1][1] = 5;
+        goalBlocks[1][2] = 6;
+        goalBlocks[2][0] = 7;
+        goalBlocks[2][1] = 8;
+        goalBlocks[2][2] = 0;
         Board goalBoard = new Board(goalBlocks);
         assert(goalBoard.isGoal());
+
     }
 }

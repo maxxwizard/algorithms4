@@ -2,29 +2,20 @@ import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.MinPQ;
 import edu.princeton.cs.algs4.StdOut;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Comparator;
 import java.util.Collections;
 
 public class Solver {
 
-    Puzzle originalPuzzle;
-    Puzzle twinPuzzle;
-
-    private static class Debugger {
-        public static void Log(String s) {
-            //StdOut.println(s); // remove the comment if we want debugging output
-        }
-    }
+    private final Puzzle originalPuzzle;
+    private final Puzzle twinPuzzle;
 
     private class Puzzle {
-        private MinPQ<SearchNode> pq;
-        private ArrayList<Board> gameTree;
+        private final MinPQ<SearchNode> pq;
         private SearchNode currentNode;
         private boolean solved;
 
         public Puzzle(Board initial) {
-            gameTree = new ArrayList<>();
             pq = new MinPQ<SearchNode>(new SearchNodeComparator());
             pq.insert(new SearchNode(initial, 0, null));
         }
@@ -38,41 +29,28 @@ public class Solver {
                 remove search node from MinPQ
                 add search node to game tree
                 get neighbors of removed search node
-                prune neighbors to ensure it's not a board we've seen before (search our game tree)
+                enqueue node only if it is not the same as the board of the predecessor search node
                 add pruned neighbors to PQ
 
             Returns:
                 true if this puzzle instance has reached goal board, false otherwise
          */
         public void step() {
-            Iterable<Board> neighbors;
             currentNode = pq.delMin();
-            Debugger.Log(String.format("removed from PQ (move #%d):\n%s", currentNode.moves, currentNode.board.toString()));
-            gameTree.add(currentNode.board);
-            neighbors = currentNode.board.neighbors();
-            pruneNeighbors(neighbors);
-            for (Board neighbor : neighbors) {
-                pq.insert(new SearchNode(neighbor, currentNode.moves+1, currentNode));
-                Debugger.Log("added to PQ:\n" + neighbor.toString());
+            // StdOut.println(String.format("removed from PQ (move #%d):\n%s", currentNode.moves, currentNode.board.toString()));
+            for (Board neighbor : currentNode.neighbors) {
+                if (!neighbor.equals(currentNode.prev)) { // ensure we've never seen this board before
+                    pq.insert(new SearchNode(neighbor, currentNode.moves+1, currentNode));
+                    // StdOut.println("added to PQ:\n" + neighbor.toString());
+                }
+
             }
-            Debugger.Log("----------------------------");
+            // StdOut.println("----------------------------");
 
             // currentNode will contains a reference to the goal search node
             // and we can walk it backwards to get solution
-            if (currentNode.board.isGoal()) {
+            if (currentNode.isGoal) {
                 solved = true;
-            }
-        }
-
-        private void pruneNeighbors(Iterable<Board> neighbors) {
-            Iterator<Board> it = neighbors.iterator();
-            while (it.hasNext()) {
-                Board b = it.next();
-                if (gameTree.contains(b)) {
-                    // we've seen this board before so remove it
-                    Debugger.Log("pruned:\n" + b.toString());
-                    it.remove();
-                }
             }
         }
     }
@@ -80,12 +58,18 @@ public class Solver {
     private class SearchNode {
         final Board board;
         final int moves;
+        final int manhattan;
         final SearchNode prev;
+        final boolean isGoal;
+        final Iterable<Board> neighbors;
 
         public SearchNode(Board board, int moves, SearchNode prev) {
             this.board = board;
             this.moves = moves;
             this.prev = prev;
+            this.manhattan = board.manhattan();
+            this.isGoal = board.isGoal();
+            this.neighbors = board.neighbors();
         }
     }
 
@@ -93,8 +77,8 @@ public class Solver {
 
         public int compare(SearchNode b1, SearchNode b2) {
             // compare based on Manhattan priorities + moves
-            int b1priority = b1.board.manhattan() + b1.moves;
-            int b2priority = b2.board.manhattan() + b2.moves;
+            int b1priority = b1.manhattan + b1.moves;
+            int b2priority = b2.manhattan + b2.moves;
 
             return Integer.compare(b1priority, b2priority);
         }
@@ -102,6 +86,10 @@ public class Solver {
 
     // find a solution to the initial board (using the A* algorithm)
     public Solver(Board initial) {
+
+        if (initial == null) {
+            throw new java.lang.IllegalArgumentException();
+        }
 
         originalPuzzle = new Puzzle(initial);
         twinPuzzle = new Puzzle(initial.twin());
