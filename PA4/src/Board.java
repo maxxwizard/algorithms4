@@ -232,7 +232,7 @@ public class Board {
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                sb.append(blocks[i][j] + " ");
+                sb.append(String.format("%2d", blocks[i][j]));
             }
             sb.append("\n");
         }
