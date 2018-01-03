@@ -9,6 +9,7 @@ public class Board {
     private final int[][] blocks;
     private final int n;
     private final Coordinate emptyBlock;
+    private final int manhattan;
 
     // construct a board from an n-by-n array of blocks
     // (where blocks[i][j] = block in row i, column j)
@@ -23,6 +24,9 @@ public class Board {
 
         // we pre-calculate this for use in neighbors()
         this.emptyBlock = findEmptyBlock();
+
+        // pre-calculate manhattan
+        this.manhattan = calculateManhattan();
     }
 
     // board dimension n
@@ -91,7 +95,10 @@ public class Board {
 
     // sum of Manhattan distances between blocks and goal
     public int manhattan() {
+        return manhattan;
+    }
 
+    private int calculateManhattan() {
         int totalDistance = 0;
 
         for (int i = 0; i < n; i++) {
@@ -105,7 +112,7 @@ public class Board {
 
     // is this board the goal board?
     public boolean isGoal() {
-        return hamming() == 0;
+        return manhattan() == 0;
     }
 
     // a board that is obtained by exchanging any pair of blocks
@@ -192,12 +199,8 @@ public class Board {
     }
 
     // given row i and column j, is the coordinate inside this board's dimensions?
-    private boolean isWithinBounds(int i, int j) {
-        return i < n && j < n;
-    }
-
     private boolean isWithinBounds(Coordinate c) {
-        return c.i < n && c.j < n;
+        return c.i >= 0 && c.j >= 0 && c.i < n && c.j < n;
     }
 
     private class Coordinate {
@@ -327,5 +330,19 @@ public class Board {
         Predicate<Board> boardPredicate = p -> actualNeighbors.contains(p);
         calculatedNeighbors.removeIf(boardPredicate);
         assert(calculatedNeighbors.size() == 0);
+
+        // test isGoal()
+        int[][] goalBlocks = new int[3][3];
+        goalBlocks[0][0]= 1;
+        goalBlocks[0][1]= 2;
+        goalBlocks[0][2]= 3;
+        goalBlocks[1][0]= 4;
+        goalBlocks[1][1]= 5;
+        goalBlocks[1][2]= 6;
+        goalBlocks[2][0]= 7;
+        goalBlocks[2][1]= 8;
+        goalBlocks[2][2]= 0;
+        Board goalBoard = new Board(goalBlocks);
+        assert(goalBoard.isGoal());
     }
 }
