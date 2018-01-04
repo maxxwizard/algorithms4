@@ -7,9 +7,9 @@ import java.util.Collections;
 
 public class Solver {
 
-    boolean isSolvable = false;
-    int moves;
-    Iterable<Board> solution;
+    private boolean isSolvable = false;
+    private int moves;
+    private Iterable<Board> solution;
 
     private class Puzzle {
         private final MinPQ<SearchNode> pq;
