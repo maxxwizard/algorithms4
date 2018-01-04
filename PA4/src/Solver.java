@@ -77,16 +77,16 @@ public class Solver {
     private class SearchNode {
         final Board board;
         final int moves;
-        final int manhattan;
         final SearchNode prev;
         final boolean isGoal;
         final Iterable<Board> neighbors;
+        final int manhattanPriority;
 
         public SearchNode(Board board, int moves, SearchNode prev) {
             this.board = board;
             this.moves = moves;
             this.prev = prev;
-            this.manhattan = board.manhattan();
+            this.manhattanPriority = this.moves + board.manhattan();
             this.isGoal = board.isGoal();
             this.neighbors = board.neighbors();
         }
@@ -95,11 +95,8 @@ public class Solver {
     private static class SearchNodeComparator implements Comparator<SearchNode> {
 
         public int compare(SearchNode b1, SearchNode b2) {
-            // compare based on Manhattan priorities + moves
-            int b1priority = b1.manhattan + b1.moves;
-            int b2priority = b2.manhattan + b2.moves;
-
-            return Integer.compare(b1priority, b2priority);
+            // compare based on Manhattan priorities
+            return Integer.compare(b1.manhattanPriority, b2.manhattanPriority);
         }
     }
 
