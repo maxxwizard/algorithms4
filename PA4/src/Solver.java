@@ -8,7 +8,6 @@ import java.util.Collections;
 public class Solver {
 
     private final Puzzle originalPuzzle;
-    private final Puzzle twinPuzzle;
 
     private class Puzzle {
         private final MinPQ<SearchNode> pq;
@@ -108,7 +107,7 @@ public class Solver {
         }
 
         originalPuzzle = new Puzzle(initial);
-        twinPuzzle = new Puzzle(initial.twin());
+        Puzzle twinPuzzle = new Puzzle(initial.twin());
 
         // we loop until one of the two puzzles has reached its goal board
         do {
