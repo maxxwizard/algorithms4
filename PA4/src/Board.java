@@ -4,11 +4,19 @@ import java.util.Arrays;
 
 public class Board {
 
-    private final int[][] blocks;
+    private final char[][] blocks;
 
     // construct a board from an n-by-n array of blocks
     // (where blocks[i][j] = block in row i, column j)
     public Board(int[][] blocks) {
+        if (blocks == null)
+            throw new java.lang.IllegalArgumentException();
+
+        // deep-clone
+        this.blocks = deepClone(blocks);
+    }
+
+    private Board(char[][] blocks) {
         if (blocks == null)
             throw new java.lang.IllegalArgumentException();
 
@@ -125,8 +133,18 @@ public class Board {
         return twin(first, last);
     }
 
-    private static int[][] deepClone(int[][] blocks) {
-        int[][] clonedBlocks = new int[blocks.length][blocks.length];
+    private static char[][] deepClone(int[][] blocks) {
+        char[][] clonedBlocks = new char[blocks.length][blocks.length];
+        for (int i = 0; i < blocks.length; i++) {
+            for (int j = 0; j < blocks.length; j++) {
+                clonedBlocks[i][j] = (char) blocks[i][j];
+            }
+        }
+        return clonedBlocks;
+    }
+
+    private static char[][] deepClone(char[][] blocks) {
+        char[][] clonedBlocks = new char[blocks.length][blocks.length];
         for (int i = 0; i < blocks.length; i++) {
             clonedBlocks[i] = Arrays.copyOf(blocks[i], blocks.length);
         }
@@ -136,10 +154,10 @@ public class Board {
     // returns a Board where blocks at Coordinate a and Coordinate b are exchanged
     private Board twin(Coordinate a, Coordinate b) {
         // deep-clone
-        int[][] twinBlocks = deepClone(this.blocks);
+        char[][] twinBlocks = deepClone(this.blocks);
 
         // swap blocks at coordinates a and b
-        int temp = twinBlocks[a.i][a.j];
+        char temp = twinBlocks[a.i][a.j];
         twinBlocks[a.i][a.j] = twinBlocks[b.i][b.j];
         twinBlocks[b.i][b.j] = temp;
 
