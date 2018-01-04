@@ -265,7 +265,7 @@ public class Board {
 
         for (int i = 0; i < dimension(); i++) {
             for (int j = 0; j < dimension(); j++) {
-                sb.append(String.format("%2d ", blocks[i][j]));
+                sb.append(String.format("%2d ", (int)blocks[i][j]));
             }
             sb.append("\n");
         }
