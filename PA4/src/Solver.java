@@ -7,20 +7,22 @@ import java.util.Collections;
 
 public class Solver {
 
-    private final Puzzle originalPuzzle;
+    boolean isSolvable = false;
+    int moves;
+    Iterable<Board> solution;
 
     private class Puzzle {
         private final MinPQ<SearchNode> pq;
         private SearchNode currentNode;
-        private boolean solved;
+        private boolean isSolvable;
 
         public Puzzle(Board initial) {
             pq = new MinPQ<SearchNode>(new SearchNodeComparator());
             pq.insert(new SearchNode(initial, 0, null));
         }
 
-        public boolean isSolved() {
-            return solved;
+        public boolean isSolvable() {
+            return isSolvable;
         }
 
         /*
@@ -50,7 +52,7 @@ public class Solver {
             // currentNode will contains a reference to the goal search node
             // and we can walk it backwards to get solution
             if (currentNode.isGoal) {
-                solved = true;
+                isSolvable = true;
             }
         }
 
@@ -106,34 +108,21 @@ public class Solver {
             throw new java.lang.IllegalArgumentException();
         }
 
-        originalPuzzle = new Puzzle(initial);
+        Puzzle originalPuzzle = new Puzzle(initial);
         Puzzle twinPuzzle = new Puzzle(initial.twin());
 
         // we loop until one of the two puzzles has reached its goal board
         do {
             originalPuzzle.step();
             twinPuzzle.step();
-        } while (!originalPuzzle.isSolved() && !twinPuzzle.isSolved());
+        } while (!originalPuzzle.isSolvable() && !twinPuzzle.isSolvable());
 
-        // when we reach this point, it means either the original or the twin has been solved
-    }
+        // when we reach this point, it means either the original or the twin has been isSolvable
+        // so save our results!
+        this.isSolvable = originalPuzzle.isSolvable;
+        if (isSolvable) {
+            this.moves = originalPuzzle.currentNode.moves;
 
-    // is the initial board solvable?
-    public boolean isSolvable() {
-        return originalPuzzle.isSolved();
-    }
-
-    // min number of moves to solve initial board; -1 if unsolvable
-    public int moves() {
-        if (isSolvable())
-            return originalPuzzle.currentNode.moves;
-
-        return -1;
-    }
-
-    // sequence of boards in a shortest solution; null if unsolvable
-    public Iterable<Board> solution() {
-        if (isSolvable()) {
             ArrayList<Board> path = new ArrayList<>();
             SearchNode it = originalPuzzle.currentNode;
             while (it != null) {
@@ -143,11 +132,27 @@ public class Solver {
 
             // we want the solution to read from initial board to goal goal, i.e. chronologically forward
             Collections.reverse(path);
-
-            return path;
+            this.solution = path;
+        } else {
+            this.moves = -1;
+            this.solution = null;
         }
 
-        return null;
+    }
+
+    // is the initial board solvable?
+    public boolean isSolvable() {
+        return isSolvable;
+    }
+
+    // min number of moves to solve initial board; -1 if unsolvable
+    public int moves() {
+        return moves;
+    }
+
+    // sequence of boards in a shortest solution; null if unsolvable
+    public Iterable<Board> solution() {
+        return solution;
     }
 
     // solve a slider puzzle (given below)
