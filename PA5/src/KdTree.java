@@ -57,27 +57,35 @@ public class KdTree {
         if (p == null)
             throw new java.lang.IllegalArgumentException();
 
-        root = insert(root, p, VERTICAL);
+        root = insert(root, p, null, LEFT, VERTICAL);
     }
 
-    private Node insert(Node x, Point2D p, boolean orientation) {
+    private Node insert(Node x, Point2D p, Node parent, boolean side, boolean orientation) {
         if (x == null) {
             Node newNode = new Node(p, 1, orientation);
 
-            if (size() == 0) {
-                StdOut.println("first node in tree");
+            if (parent == null) {
                 // we are the first node!
-                newNode.rect = new RectHV(p.x(), 0, p.x(), 1);
-            }
-
-            if (orientation == VERTICAL) {
-                newNode.rect = new RectHV(p.x(), 0, p.x(), 1);
+                newNode.rect = new RectHV(0, 0, 1, 1);
             } else {
-                newNode.rect = new RectHV(0, p.y(), 1, p.y());
+                StdOut.println(String.format("new node (%.2f, %.2f)", p.x(), p.y()));
+                if (side == LEFT) {
+                    if (orientation == VERTICAL) {
+                        newNode.rect = new RectHV(parent.rect.xmin(), parent.rect.ymin(), parent.rect.xmax(), parent.p.y());
+                    } else {
+                        newNode.rect = new RectHV(parent.rect.xmin(), parent.rect.ymin(), parent.p.x(), parent.rect.ymax());
+                    }
+                } else if (side == RIGHT) {
+                    if (orientation == VERTICAL) {
+                        newNode.rect = new RectHV(parent.rect.xmin(), parent.p.y(), parent.rect.xmax(), parent.rect.ymax());
+                    } else {
+                        newNode.rect = new RectHV(parent.p.x(), parent.rect.ymin(), parent.rect.xmax(), parent.rect.ymax());
+                    }
+                }
             }
 
-            //StdOut.println(String.format("inserted Node (%.2f, %.2f) | size %d | rect (%.2f, %.2f, %.2f, %.2f) | %s \n",
-            //        newNode.p.x(), newNode.p.y(), newNode.size, newNode.rect.xmin(), newNode.rect.ymin(), newNode.rect.xmax(), newNode.rect.ymax(), orientation));
+            StdOut.println(String.format("inserted Node (%.2f, %.2f) | rect (%.2f, %.2f, %.2f, %.2f) | %s \n",
+                    newNode.p.x(), newNode.p.y(), newNode.rect.xmin(), newNode.rect.ymin(), newNode.rect.xmax(), newNode.rect.ymax(), orientation));
             return newNode;
         }
 
@@ -88,11 +96,12 @@ public class KdTree {
         // every time we go down a level, we flip orientation
         if (cmp < 0) {
             StdOut.println("going left");
-            x.lb = insert(x.lb, p, !x.orientation);
+            x.lb = insert(x.lb, p, x, LEFT, !x.orientation);
         }
         else if (cmp > 0) {
             StdOut.println("going right");
-            x.rt = insert(x.rt, p, !x.orientation);
+            Node rightnode = insert(x.rt, p, x, RIGHT, !x.orientation);
+            x.rt = rightnode;
         }
         else {
             StdOut.println("node already exists so do nothing");
