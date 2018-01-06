@@ -12,6 +12,9 @@ public class KdTree {
     private static final boolean LEFT = false;
     private static final boolean RIGHT = true;
 
+    private Point2D nearestPoint;
+    private double nearestPointDistance;
+
     private static class Node {
         // even levels of the tree = vertical line = p.x() is the key
         // odd levels of the tree = horizontal line = p.y() is the key
@@ -208,47 +211,47 @@ public class KdTree {
         if (this.size() == 0)
             return null;
 
-        Node champion = null;
-        nearest(p, root, champion, Double.POSITIVE_INFINITY, VERTICAL);
-        StdOut.println(String.format("champion node (%.2f, %.2f)", champion.p.x(), champion.p.y()));
+        nearestPointDistance = Double.POSITIVE_INFINITY;
+        nearest(p, root);
 
-        return champion.p;
+        return nearestPoint;
     }
 
-    private void nearest(Point2D p, Node x, Node champion, double shortestDistance, boolean orientation) {
+    private void nearest(Point2D p, Node x) {
 
-        // reached leaf node
         if (x == null)
             return;
 
-        // update champion if shorter distance
-        double distance = x.p.distanceTo(p);
-        if (distance < shortestDistance) {
-            StdOut.println(String.format("updating champion to (%.2f, %.2f)", x.p.x(), x.p.y()));
-            shortestDistance = distance;
-            champion = x;
+        if (x.p.distanceTo(p) < nearestPointDistance) {
+            nearestPoint = x.p;
+            nearestPointDistance = x.p.distanceTo(p);
         }
 
-        // determine if query point is to left/bottom or right/top geometrically
-        if (orientation == VERTICAL) {
-            if (p.x() < x.p.x()) {
-                StdOut.println("going left");
-                if (x.lb != null)
-                    nearest(p, x.lb, champion, shortestDistance, !x.orientation);
-            } else {
-                StdOut.println("going right");
-                if (x.rt != null)
-                    nearest(p, x.rt, champion, shortestDistance, !x.orientation);
+        if (x.orientation == VERTICAL) {
+            if (p.x() < x.p.x()) { // p is on left side of splitting line
+                nearest(p, x.lb);
+                if (x.rt != null && x.rt.rect.distanceTo(p) < nearestPointDistance) {
+                    // if distance to opposite side's rect is less than distance to the current nearest point found,
+                    // then search that rect as well
+                    nearest(p, x.rt);
+                }
+            } else { // p is on right side of splitting line
+                nearest(p, x.rt);
+                if (x.lb != null && x.lb.rect.distanceTo(p) < nearestPointDistance) {
+                    nearest(p, x.lb);
+                }
             }
-        } else if (orientation == HORIZONTAL) {
-            if (p.y() < x.p.y()) {
-                StdOut.println("going bottom");
-                if (x.lb != null)
-                    nearest(p, x.lb, champion, shortestDistance, !x.orientation);
-            } else {
-                StdOut.println("going top");
-                if (x.rt != null)
-                    nearest(p, x.rt, champion, shortestDistance, !x.orientation);
+        } else if (x.orientation == HORIZONTAL) {
+            if (p.y() < x.p.y()) { // p is on bottom side of splitting line
+                nearest(p, x.lb);
+                if (x.rt != null && x.rt.rect.distanceTo(p) < nearestPointDistance) {
+                    nearest(p, x.rt);
+                }
+            } else { // p is on top side of splitting line
+                nearest(p, x.rt);
+                if (x.lb != null && x.lb.rect.distanceTo(p) < nearestPointDistance) {
+                    nearest(p, x.lb);
+                }
             }
         }
     }
