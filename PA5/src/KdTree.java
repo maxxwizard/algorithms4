@@ -179,7 +179,25 @@ public class KdTree {
         if (rect == null)
             throw new java.lang.IllegalArgumentException();
 
-        throw new java.lang.UnsupportedOperationException();
+        ArrayList<Point2D> points = new ArrayList<Point2D>();
+
+        range(rect, root, points);
+
+        return points;
+    }
+
+    private void range(RectHV rect, Node x, ArrayList<Point2D> points) {
+        if (rect.contains(x.p)) {
+            points.add(x.p);
+        }
+
+        if (x.lb != null && rect.intersects(x.lb.rect)) {
+            range(rect, x.lb, points);
+        }
+
+        if (x.rt != null && rect.intersects(x.rt.rect)) {
+            range(rect, x.rt, points);
+        }
     }
 
     // a nearest neighbor in the set to point p; null if the set is empty
@@ -190,19 +208,25 @@ public class KdTree {
         if (this.size() == 0)
             return null;
 
-        Node champion = nearest(p, root, p.distanceTo(root.p), VERTICAL);
+        Node champion = null;
+        nearest(p, root, champion, Double.POSITIVE_INFINITY, VERTICAL);
         StdOut.println(String.format("champion node (%.2f, %.2f)", champion.p.x(), champion.p.y()));
 
         return champion.p;
     }
 
-    private Node nearest(Point2D p, Node x, double shortestDistance, boolean orientation) {
+    private void nearest(Point2D p, Node x, Node champion, double shortestDistance, boolean orientation) {
+
+        // reached leaf node
+        if (x == null)
+            return;
 
         // update champion if shorter distance
         double distance = x.p.distanceTo(p);
         if (distance < shortestDistance) {
+            StdOut.println(String.format("updating champion to (%.2f, %.2f)", x.p.x(), x.p.y()));
             shortestDistance = distance;
-            return x;
+            champion = x;
         }
 
         // determine if query point is to left/bottom or right/top geometrically
@@ -210,24 +234,22 @@ public class KdTree {
             if (p.x() < x.p.x()) {
                 StdOut.println("going left");
                 if (x.lb != null)
-                    return nearest(p, x.lb, shortestDistance, !x.orientation);
+                    nearest(p, x.lb, champion, shortestDistance, !x.orientation);
             } else {
                 StdOut.println("going right");
                 if (x.rt != null)
-                    return nearest(p, x.rt, shortestDistance, !x.orientation);
+                    nearest(p, x.rt, champion, shortestDistance, !x.orientation);
             }
         } else if (orientation == HORIZONTAL) {
             if (p.y() < x.p.y()) {
                 StdOut.println("going bottom");
                 if (x.lb != null)
-                    return nearest(p, x.lb, shortestDistance, !x.orientation);
+                    nearest(p, x.lb, champion, shortestDistance, !x.orientation);
             } else {
                 StdOut.println("going top");
                 if (x.rt != null)
-                    return nearest(p, x.rt, shortestDistance, !x.orientation);
+                    nearest(p, x.rt, champion, shortestDistance, !x.orientation);
             }
         }
-
-        return x;
     }
 }
