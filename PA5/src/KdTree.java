@@ -169,7 +169,6 @@ public class KdTree {
         }
         StdDraw.setPenRadius();
 
-
         // call draw on the left and right subtrees
         draw(x.lb);
         draw(x.rt);
@@ -191,6 +190,44 @@ public class KdTree {
         if (this.size() == 0)
             return null;
 
-        throw new java.lang.UnsupportedOperationException();
+        Node champion = nearest(p, root, p.distanceTo(root.p), VERTICAL);
+        StdOut.println(String.format("champion node (%.2f, %.2f)", champion.p.x(), champion.p.y()));
+
+        return champion.p;
+    }
+
+    private Node nearest(Point2D p, Node x, double shortestDistance, boolean orientation) {
+
+        // update champion if shorter distance
+        double distance = x.p.distanceTo(p);
+        if (distance < shortestDistance) {
+            shortestDistance = distance;
+            return x;
+        }
+
+        // determine if query point is to left/bottom or right/top geometrically
+        if (orientation == VERTICAL) {
+            if (p.x() < x.p.x()) {
+                StdOut.println("going left");
+                if (x.lb != null)
+                    return nearest(p, x.lb, shortestDistance, !x.orientation);
+            } else {
+                StdOut.println("going right");
+                if (x.rt != null)
+                    return nearest(p, x.rt, shortestDistance, !x.orientation);
+            }
+        } else if (orientation == HORIZONTAL) {
+            if (p.y() < x.p.y()) {
+                StdOut.println("going bottom");
+                if (x.lb != null)
+                    return nearest(p, x.lb, shortestDistance, !x.orientation);
+            } else {
+                StdOut.println("going top");
+                if (x.rt != null)
+                    return nearest(p, x.rt, shortestDistance, !x.orientation);
+            }
+        }
+
+        return x;
     }
 }
