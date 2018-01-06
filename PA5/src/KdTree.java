@@ -1,17 +1,18 @@
-import edu.princeton.cs.algs4.*;
+import edu.princeton.cs.algs4.Point2D;
+import edu.princeton.cs.algs4.RectHV;
+import edu.princeton.cs.algs4.StdDraw;
+import edu.princeton.cs.algs4.StdOut;
 
 import java.util.ArrayList;
 
 public class KdTree {
 
-    private Node root;
-
     private static final boolean VERTICAL = true;
     private static final boolean HORIZONTAL = false;
-
     private static final boolean LEFT = false;
     private static final boolean RIGHT = true;
 
+    private Node root;
     private Point2D nearestPoint;
     private double nearestPointDistance;
 
@@ -19,15 +20,16 @@ public class KdTree {
         // even levels of the tree = vertical line = p.x() is the key
         // odd levels of the tree = horizontal line = p.y() is the key
 
-        private Point2D p;      // the point
-        private RectHV rect;    // the axis-aligned rectangle corresponding to this node
+        private final Point2D p;      // the point
+        private final RectHV rect;    // the axis-aligned rectangle corresponding to this node
         private Node lb;        // the left/bottom subtree
         private Node rt;        // the right/top subtree
         private int size;       // number of nodes in subtree
-        private boolean orientation; // whether this node is vertical or horizontal
+        private final boolean orientation; // whether this node is vertical or horizontal
 
-        public Node(Point2D point, int size, boolean orientation) {
+        public Node(Point2D point, RectHV rect, int size, boolean orientation) {
             this.p = point;
+            this.rect = rect;
             this.size = size;
             this.orientation = orientation;
         }
@@ -65,26 +67,28 @@ public class KdTree {
 
     private Node insert(Node x, Point2D p, Node parent, boolean side, boolean orientation) {
         if (x == null) {
-            Node newNode = new Node(p, 1, orientation);
+            RectHV newRect = null;
 
             if (parent == null) {
                 // we are the first node!
-                newNode.rect = new RectHV(0, 0, 1, 1);
+                newRect = new RectHV(0, 0, 1, 1);
             } else {
                 if (side == LEFT) {
                     if (orientation == VERTICAL) {
-                        newNode.rect = new RectHV(parent.rect.xmin(), parent.rect.ymin(), parent.rect.xmax(), parent.p.y());
+                        newRect = new RectHV(parent.rect.xmin(), parent.rect.ymin(), parent.rect.xmax(), parent.p.y());
                     } else if (orientation == HORIZONTAL) {
-                        newNode.rect = new RectHV(parent.rect.xmin(), parent.rect.ymin(), parent.p.x(), parent.rect.ymax());
+                        newRect = new RectHV(parent.rect.xmin(), parent.rect.ymin(), parent.p.x(), parent.rect.ymax());
                     }
                 } else if (side == RIGHT) {
                     if (orientation == VERTICAL) {
-                        newNode.rect = new RectHV(parent.rect.xmin(), parent.p.y(), parent.rect.xmax(), parent.rect.ymax());
+                        newRect = new RectHV(parent.rect.xmin(), parent.p.y(), parent.rect.xmax(), parent.rect.ymax());
                     } else if (orientation == HORIZONTAL) {
-                        newNode.rect = new RectHV(parent.p.x(), parent.rect.ymin(), parent.rect.xmax(), parent.rect.ymax());
+                        newRect = new RectHV(parent.p.x(), parent.rect.ymin(), parent.rect.xmax(), parent.rect.ymax());
                     }
                 }
             }
+
+            Node newNode = new Node(p, newRect, 1, orientation);
 
             // StdOut.println(String.format("inserted Node (%.2f, %.2f) | rect (%.2f, %.2f, %.2f, %.2f) | %s \n", newNode.p.x(), newNode.p.y(), newNode.rect.xmin(), newNode.rect.ymin(), newNode.rect.xmax(), newNode.rect.ymax(), orientation));
             return newNode;
@@ -99,10 +103,9 @@ public class KdTree {
             // StdOut.println("going left");
             x.lb = insert(x.lb, p, x, LEFT, !x.orientation);
         }
-        else if (cmp > 0) {
+        else {
             // StdOut.println("going right");
-            Node rightnode = insert(x.rt, p, x, RIGHT, !x.orientation);
-            x.rt = rightnode;
+            x.rt = insert(x.rt, p, x, RIGHT, !x.orientation);
         }
 
         x.size = 1 + size(x.lb) + size(x.rt);
@@ -254,5 +257,25 @@ public class KdTree {
                 }
             }
         }
+    }
+
+    // unit tests
+    public static void main(String[] args) {
+        KdTree tree = new KdTree();
+
+        for (int i = 0; i < 10; i++) {
+            tree.insert(new Point2D(Math.random(), Math.random()));
+            assert(tree.size() == i+1);
+        }
+
+        tree = new KdTree();
+        tree.insert(new Point2D(0.25, 0.125));
+        tree.insert(new Point2D(0.0, 0.875));
+        tree.insert(new Point2D(0.5, 0.75));
+        tree.insert(new Point2D(0.625, 0.25));
+        tree.insert(new Point2D(0.375, 0.0));
+        tree.insert(new Point2D(1.0, 0.875));
+        tree.insert(new Point2D(0.875, 0.75));
+        assert(tree.size() == 7);
     }
 }
