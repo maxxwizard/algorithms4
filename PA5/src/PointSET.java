@@ -1,7 +1,6 @@
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
 import edu.princeton.cs.algs4.SET;
-import edu.princeton.cs.algs4.StdDraw;
 
 import java.util.ArrayList;
 
@@ -73,7 +72,7 @@ public class PointSET {
         Point2D nearest = null;
         double shortestDistance = Double.POSITIVE_INFINITY;
         for (Point2D point : this.set) {
-            double distance = p.distanceTo(point);
+            double distance = p.distanceSquaredTo(point);
             if (nearest == null || distance < shortestDistance) {
                 shortestDistance = distance;
                 nearest = point;

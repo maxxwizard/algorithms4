@@ -61,7 +61,7 @@ public class NearestNeighborVisualizer {
             StdDraw.setPenColor(StdDraw.BLUE);
             kdtree.nearest(query).draw();
             StdDraw.show();
-            StdDraw.pause(1000);
+            StdDraw.pause(50);
             StdOut.println("-------------------------------------");
 
         }

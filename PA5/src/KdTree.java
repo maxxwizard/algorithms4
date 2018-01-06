@@ -222,34 +222,34 @@ public class KdTree {
         if (x == null)
             return;
 
-        if (x.p.distanceTo(p) < nearestPointDistance) {
+        if (x.p.distanceSquaredTo(p) < nearestPointDistance) {
             nearestPoint = x.p;
-            nearestPointDistance = x.p.distanceTo(p);
+            nearestPointDistance = x.p.distanceSquaredTo(p);
         }
 
         if (x.orientation == VERTICAL) {
             if (p.x() < x.p.x()) { // p is on left side of splitting line
                 nearest(p, x.lb);
-                if (x.rt != null && x.rt.rect.distanceTo(p) < nearestPointDistance) {
+                if (x.rt != null && x.rt.rect.distanceSquaredTo(p) < nearestPointDistance) {
                     // if distance to opposite side's rect is less than distance to the current nearest point found,
                     // then search that rect as well
                     nearest(p, x.rt);
                 }
             } else { // p is on right side of splitting line
                 nearest(p, x.rt);
-                if (x.lb != null && x.lb.rect.distanceTo(p) < nearestPointDistance) {
+                if (x.lb != null && x.lb.rect.distanceSquaredTo(p) < nearestPointDistance) {
                     nearest(p, x.lb);
                 }
             }
         } else if (x.orientation == HORIZONTAL) {
             if (p.y() < x.p.y()) { // p is on bottom side of splitting line
                 nearest(p, x.lb);
-                if (x.rt != null && x.rt.rect.distanceTo(p) < nearestPointDistance) {
+                if (x.rt != null && x.rt.rect.distanceSquaredTo(p) < nearestPointDistance) {
                     nearest(p, x.rt);
                 }
             } else { // p is on top side of splitting line
                 nearest(p, x.rt);
-                if (x.lb != null && x.lb.rect.distanceTo(p) < nearestPointDistance) {
+                if (x.lb != null && x.lb.rect.distanceSquaredTo(p) < nearestPointDistance) {
                     nearest(p, x.lb);
                 }
             }
