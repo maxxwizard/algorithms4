@@ -128,17 +128,15 @@ public class KdTree {
     }
 
     private Point2D get(Node x, Point2D p, boolean orientation) {
-        throw new java.lang.UnsupportedOperationException();
-        /*
+
         if (x == null) return null;
 
-        int cmp = orientationCompare(x, p, orientation);
+        int cmp = orientationCompare(x, p);
 
         // every time we go down a level, we flip orientation
         if (cmp < 0) return get(x.lb, p, !orientation);
         if (cmp > 0) return get(x.rt, p, !orientation);
         else return x.p;
-        */
     }
 
     // draw all points and subdivisions to standard draw
@@ -154,6 +152,7 @@ public class KdTree {
         StdDraw.setPenColor(StdDraw.BLACK);
         StdDraw.setPenRadius(0.01);
         x.p.draw();
+
         // draw its subdivision in the color of orientation (vertical = red, horizontal = blue)
         if (x.orientation == VERTICAL) {
             StdDraw.setPenColor(StdDraw.RED);
@@ -162,7 +161,8 @@ public class KdTree {
         }
         StdDraw.setPenRadius();
         //x.rect.draw();
-        // call draw on the left and right, flipping the orientation because we're moving levels
+
+        // call draw on the left and right subtrees
         draw(x.lb);
         draw(x.rt);
     }
