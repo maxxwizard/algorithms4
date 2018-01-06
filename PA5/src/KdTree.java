@@ -68,24 +68,22 @@ public class KdTree {
                 // we are the first node!
                 newNode.rect = new RectHV(0, 0, 1, 1);
             } else {
-                StdOut.println(String.format("new node (%.2f, %.2f)", p.x(), p.y()));
                 if (side == LEFT) {
                     if (orientation == VERTICAL) {
                         newNode.rect = new RectHV(parent.rect.xmin(), parent.rect.ymin(), parent.rect.xmax(), parent.p.y());
-                    } else {
+                    } else if (orientation == HORIZONTAL) {
                         newNode.rect = new RectHV(parent.rect.xmin(), parent.rect.ymin(), parent.p.x(), parent.rect.ymax());
                     }
                 } else if (side == RIGHT) {
                     if (orientation == VERTICAL) {
                         newNode.rect = new RectHV(parent.rect.xmin(), parent.p.y(), parent.rect.xmax(), parent.rect.ymax());
-                    } else {
+                    } else if (orientation == HORIZONTAL) {
                         newNode.rect = new RectHV(parent.p.x(), parent.rect.ymin(), parent.rect.xmax(), parent.rect.ymax());
                     }
                 }
             }
 
-            StdOut.println(String.format("inserted Node (%.2f, %.2f) | rect (%.2f, %.2f, %.2f, %.2f) | %s \n",
-                    newNode.p.x(), newNode.p.y(), newNode.rect.xmin(), newNode.rect.ymin(), newNode.rect.xmax(), newNode.rect.ymax(), orientation));
+            // StdOut.println(String.format("inserted Node (%.2f, %.2f) | rect (%.2f, %.2f, %.2f, %.2f) | %s \n", newNode.p.x(), newNode.p.y(), newNode.rect.xmin(), newNode.rect.ymin(), newNode.rect.xmax(), newNode.rect.ymax(), orientation));
             return newNode;
         }
 
@@ -95,36 +93,27 @@ public class KdTree {
 
         // every time we go down a level, we flip orientation
         if (cmp < 0) {
-            StdOut.println("going left");
+            // StdOut.println("going left");
             x.lb = insert(x.lb, p, x, LEFT, !x.orientation);
         }
         else if (cmp > 0) {
-            StdOut.println("going right");
+            // StdOut.println("going right");
             Node rightnode = insert(x.rt, p, x, RIGHT, !x.orientation);
             x.rt = rightnode;
-        }
-        else {
-            StdOut.println("node already exists so do nothing");
         }
 
         x.size = 1 + size(x.lb) + size(x.rt);
 
-        //x.rect = createRect(p, parent, orientation);
-        //StdOut.println(String.format("set Node (%.2f, %.2f) to size %d with rect (%.2f, %.2f, %.2f, %.2f)",
-        //        x.p.x(), x.p.y(), x.size, x.rect.xmin(), x.rect.ymin(), x.rect.xmax(), x.rect.ymax()));
-
         return x;
     }
 
+    // we choose the key to compare based on orientation
     private int orientationCompare(Node x, Point2D p) {
-        // we choose the key to compare based on orientation
         int cmp;
         if (x.orientation == VERTICAL) {
             cmp = Double.compare(p.x(), x.p.x());
-            //StdOut.println(String.format("vertical: (%.2f, %.2f) cmp (%.2f, %.2f) = %d", p.x(), p.y(), x.p.x(), x.p.y(), cmp));
         } else {
             cmp = Double.compare(p.y(), x.p.y());
-            //StdOut.println(String.format("horizontal: (%.2f, %.2f) cmp (%.2f, %.2f) = %d", p.x(), p.y(), x.p.x(), x.p.y(), cmp));
         }
 
         return cmp;

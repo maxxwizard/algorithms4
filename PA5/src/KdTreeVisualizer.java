@@ -23,7 +23,7 @@ public class KdTreeVisualizer {
             if (StdDraw.isMousePressed()) {
                 double x = StdDraw.mouseX();
                 double y = StdDraw.mouseY();
-                //StdOut.printf("%8.6f %8.6f\n", x, y);
+                StdOut.printf("%8.6f %8.6f\n", x, y);
                 Point2D p = new Point2D(x, y);
                 if (rect.contains(p)) {
                     StdOut.printf("---------------------------------------------\n", x, y);
