@@ -67,7 +67,13 @@ public class KdTree {
             if (size() == 0) {
                 StdOut.println("first node in tree");
                 // we are the first node!
-                //newNode.rect = new RectHV(p.x(), 0, p.x(), 1);
+                newNode.rect = new RectHV(p.x(), 0, p.x(), 1);
+            }
+
+            if (orientation == VERTICAL) {
+                newNode.rect = new RectHV(p.x(), 0, p.x(), 1);
+            } else {
+                newNode.rect = new RectHV(0, p.y(), 1, p.y());
             }
 
             //StdOut.println(String.format("inserted Node (%.2f, %.2f) | size %d | rect (%.2f, %.2f, %.2f, %.2f) | %s \n",
@@ -160,7 +166,7 @@ public class KdTree {
             StdDraw.setPenColor(StdDraw.BLUE);
         }
         StdDraw.setPenRadius();
-        //x.rect.draw();
+        x.rect.draw();
 
         // call draw on the left and right subtrees
         draw(x.lb);
