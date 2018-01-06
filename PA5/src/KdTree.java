@@ -168,14 +168,18 @@ public class KdTree {
         StdDraw.setPenRadius(0.01);
         x.p.draw();
 
-        // draw its subdivision in the color of orientation (vertical = red, horizontal = blue)
+        // draw the splitting lines in the color of orientation (vertical = red, horizontal = blue)
         if (x.orientation == VERTICAL) {
             StdDraw.setPenColor(StdDraw.RED);
+            StdDraw.setPenRadius(0.001);
+            StdDraw.line(x.p.x(), x.rect.ymin(), x.p.x(), x.rect.ymax());
         } else {
             StdDraw.setPenColor(StdDraw.BLUE);
+            StdDraw.setPenRadius(0.001);
+            StdDraw.line(x.rect.xmin(), x.p.y(), x.rect.xmax(), x.p.y());
         }
         StdDraw.setPenRadius();
-        x.rect.draw();
+
 
         // call draw on the left and right subtrees
         draw(x.lb);
