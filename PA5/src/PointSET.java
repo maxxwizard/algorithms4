@@ -5,7 +5,7 @@ import edu.princeton.cs.algs4.SET;
 import java.util.ArrayList;
 
 public class PointSET {
-    private SET<Point2D> set;
+    private final SET<Point2D> set;
 
     // construct an empty set of points
     public PointSET() {
@@ -80,10 +80,5 @@ public class PointSET {
         }
 
         return nearest;
-    }
-
-    // unit testing of the methods (optional)
-    public static void main(String[] args) {
-
     }
 }

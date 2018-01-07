@@ -94,6 +94,11 @@ public class KdTree {
             return newNode;
         }
 
+        // we do not support duplicate points so return existing point
+        if (x.p.equals(p)) {
+            return x;
+        }
+
         // go left if new Point is smaller
         // go right if new Point is larger
         int cmp = orientationCompare(x, p);
@@ -130,23 +135,21 @@ public class KdTree {
         if (p == null)
             throw new java.lang.IllegalArgumentException();
 
-        return get(p) != null;
+        return get(p, root, VERTICAL) != null;
     }
 
-    private Point2D get(Point2D p) {
-        return get(root, p, VERTICAL);
-    }
-
-    private Point2D get(Node x, Point2D p, boolean orientation) {
+    private Point2D get(Point2D p, Node x, boolean orientation) {
 
         if (x == null) return null;
+
+        if (x.p.equals(p))
+            return x.p;
 
         int cmp = orientationCompare(x, p);
 
         // every time we go down a level, we flip orientation
-        if (cmp < 0) return get(x.lb, p, !orientation);
-        if (cmp > 0) return get(x.rt, p, !orientation);
-        else return x.p;
+        if (cmp < 0) return get(p, x.lb, !x.orientation);
+        else return get(p, x.rt, !x.orientation);
     }
 
     // draw all points and subdivisions to standard draw
@@ -193,6 +196,11 @@ public class KdTree {
     }
 
     private void range(RectHV rect, Node x, ArrayList<Point2D> points) {
+
+        if (x == null) {
+            return;
+        }
+
         if (rect.contains(x.p)) {
             points.add(x.p);
         }
@@ -263,12 +271,8 @@ public class KdTree {
     public static void main(String[] args) {
         KdTree tree = new KdTree();
 
-        for (int i = 0; i < 10; i++) {
-            tree.insert(new Point2D(Math.random(), Math.random()));
-            assert(tree.size() == i+1);
-        }
+        assert(!tree.contains(new Point2D(0.0, 1.0)));
 
-        tree = new KdTree();
         tree.insert(new Point2D(0.25, 0.125));
         tree.insert(new Point2D(0.0, 0.875));
         tree.insert(new Point2D(0.5, 0.75));
@@ -277,5 +281,20 @@ public class KdTree {
         tree.insert(new Point2D(1.0, 0.875));
         tree.insert(new Point2D(0.875, 0.75));
         assert(tree.size() == 7);
+
+        tree = new KdTree();
+        tree.insert(new Point2D(1.0, 1.0));
+        tree.insert(new Point2D(0.0, 1.0));
+        tree.insert(new Point2D(1.0, 0.0));
+        tree.insert(new Point2D(1.0, 1.0));
+        assert(tree.size() == 3);
+
+        tree = new KdTree();
+        tree.insert(new Point2D(0.5, 0.5));
+        assert(!tree.contains(new Point2D(0.5, 0.24)));
+
+        tree = new KdTree();
+        tree.insert(new Point2D(0.0, 0.0));
+        assert(tree.contains(new Point2D(0.0, 0.0)));
     }
 }
