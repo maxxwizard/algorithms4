@@ -1,7 +1,7 @@
 ## Description
-My solutions to https://www.coursera.org/learn/algorithms-part1/home/info.
+My solutions to https://www.coursera.org/learn/algorithms-part1/home and https://www.coursera.org/learn/algorithms-part2/home.
 
-## Grades
+## Part 1 Grades
 | Assignment | Grade | Scoring |
 | ---------- |:-----:|:-------:|
 | PA1        | 100%  | Correctness: 26/26 tests passed, Memory: 8/8 tests passed, Timing: 9/9 tests passed |
@@ -9,3 +9,8 @@ My solutions to https://www.coursera.org/learn/algorithms-part1/home/info.
 | PA3        | 95%  | Correctness: 39/41 tests passed, Memory: 1/1 tests passed, Timing: 36/41 tests passed |
 | PA4        | 89%  | Correctness: 48/49 tests passed, Memory: 16/22 tests passed, Timing: 75/125 tests passed |
 | PA5        | 100% | Correctness: 36/36 tests passed, Memory: 16/16 tests passed, Timing: 42/42 tests passed |
+
+## Part 2 Grades
+| Assignment | Grade | Scoring |
+| ---------- |:-----:|:-------:|
+| PA6        | ?     | ? |
