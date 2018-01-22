@@ -1,7 +1,4 @@
-import edu.princeton.cs.algs4.BreadthFirstDirectedPaths;
-import edu.princeton.cs.algs4.Digraph;
-import edu.princeton.cs.algs4.In;
-import edu.princeton.cs.algs4.Queue;
+import edu.princeton.cs.algs4.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -82,16 +79,35 @@ public class SAP {
         BreadthFirstDirectedPaths bfs_v = new BreadthFirstDirectedPaths(graph, v);
         BreadthFirstDirectedPaths bfs_w = new BreadthFirstDirectedPaths(graph, w);
 
+        int source = v;
+
+        if (bfs_v.hasPathTo(w)) {
+            // w is ancestor of v
+            // walk only BFS from w
+            StdOut.println(" starting from w " + w);
+            source = w;
+        } else if (bfs_w.hasPathTo(v)) {
+            // v is ancestor of w
+            // check only BFS from v
+            StdOut.println(" starting from v " + v);
+            source = v;
+        } else {
+            // neither is ancestor of each other
+            // you can start BFS from either vertex
+            StdOut.println(" starting from either " + v);
+            source = v;
+        }
+
         int shortestAncestralPathLength = Integer.MAX_VALUE;
         int shortestCommonAncestor = Integer.MAX_VALUE;
 
         Queue<Integer> q = new Queue<>();
         boolean[] marked = new boolean[graph.V()];
-        marked[v] = true;
-        q.enqueue(v);
+        marked[source] = true;
+        q.enqueue(source);
         while (!q.isEmpty()) {
             int a = q.dequeue();
-            // StdOut.println(String.format("processing vertex %d", a));
+             StdOut.println(String.format(" processing vertex %d", a));
 
             if (bfs_v.hasPathTo(a) && bfs_w.hasPathTo(a)) {
                 int ancestralPathLength = bfs_v.distTo(a) + bfs_w.distTo(a);
@@ -101,9 +117,10 @@ public class SAP {
                 }
             }
 
-            // add all neighbors for processing
+            // add all neighbors for processing (except for w)
+            // if we reach w from v, we're done with that path
             for (int b : graph.adj(a)) {
-                // StdOut.println(String.format(" adj[%d] = %d", a, b));
+                 StdOut.println(String.format("  adj[%d] = %d", a, b));
                 if (!marked[b]) {
                     marked[b] = true;
                     q.enqueue(b);
@@ -117,13 +134,14 @@ public class SAP {
             shortestAncestralPathLength = -1;
         }
 
-        // StdOut.println(String.format("  v = %d, w = %d, length = %d, ancestor = %d", v, w, shortestAncestralPathLength, shortestCommonAncestor));
-
         // cache the result bidirectionally
         SAPResult result = new SAPResult(v, w, shortestCommonAncestor, shortestAncestralPathLength);
         SAPResult reversedResult = new SAPResult(w, v, shortestCommonAncestor, shortestAncestralPathLength);
         putCachedResult(v, result);
         putCachedResult(w, reversedResult);
+
+         StdOut.println(String.format("   v = %d, w = %d, length = %d, ancestor = %d", v, w, shortestAncestralPathLength, shortestCommonAncestor));
+
     }
 
     // length of shortest ancestral path between v and w; -1 if no such path
@@ -133,6 +151,8 @@ public class SAP {
         if (!validateVertex(v) || !validateVertex(w)) {
             throw new java.lang.IllegalArgumentException();
         }
+
+        StdOut.println(String.format("length(%d, %d)", v, w));
 
         // check for a cached result
         SAPResult cachedResult = getCachedResult(v, w);
@@ -151,6 +171,8 @@ public class SAP {
         if (!validateVertex(v) || !validateVertex(w)) {
             throw new java.lang.IllegalArgumentException();
         }
+
+        StdOut.println(String.format("ancestor(%d, %d)", v, w));
 
         // check for a cached result
         SAPResult cachedResult = getCachedResult(v, w);
@@ -234,18 +256,30 @@ public class SAP {
         assert(sap.ancestor(1, 6) == -1);
         assert(sap.ancestor(6, 1) == -1);
 
-        // multi vertex source tests
-        SAP multiSAP = new SAP(new Digraph(new In("C:\\sources\\algorithms4\\PA6\\wordnet\\digraph1.txt")));
+        sap = new SAP(new Digraph(new In("C:\\sources\\algorithms4\\PA6\\wordnet\\digraph2.txt")));
 
-        ArrayList<Integer> listV = new ArrayList<Integer>();
-        listV.add(3);
-        listV.add(9);
-        listV.add(7);
-        ArrayList<Integer> listW = new ArrayList<Integer>();
-        listW.add(11);
-        listW.add(12);
-        listW.add(2);
-        assert(multiSAP.length(listV, listW) == 3);
-        assert(multiSAP.ancestor(listV, listW) == 0);
+        assert(sap.length(1, 5) == 2);
+        assert(sap.ancestor(1, 5) == 0);
+        assert(sap.length(1, 4) == 3);
+        assert(sap.ancestor(1, 4) == 4);
+        assert(sap.length(1, 3) == 2);
+        assert(sap.ancestor(1, 3) == 3);
+        assert(sap.length(1, 2) == 1);
+        assert(sap.ancestor(1, 2) == 2);
+
+        // multi vertex source tests
+//        SAP multiSAP = new SAP(new Digraph(new In("C:\\sources\\algorithms4\\PA6\\wordnet\\digraph1.txt")));
+//
+//        ArrayList<Integer> listV = new ArrayList<Integer>();
+//        listV.add(3);
+//        listV.add(9);
+//        listV.add(7);
+//        ArrayList<Integer> listW = new ArrayList<Integer>();
+//        listW.add(11);
+//        listW.add(12);
+//        listW.add(2);
+//        assert(multiSAP.length(listV, listW) == 3);
+//        assert(multiSAP.ancestor(listV, listW) == 0);
+
     }
 }

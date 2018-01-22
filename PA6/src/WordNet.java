@@ -87,10 +87,9 @@ public class WordNet {
         // find a common ancestor synset using SAP
         int commonAncestor = sap.ancestor(map.get(nounA), map.get(nounB));
 
-        StdOut.println(String.format("sap(%s, %s) = %d", nounA, nounB, commonAncestor));
-
         if (commonAncestor != -1) {
             // map the synset from integer back to string
+            StdOut.println(String.format("sap(%s, %s) = %s (%d)", nounA, nounB, intToString_map.get(commonAncestor), commonAncestor));
             return intToString_map.get(commonAncestor);
         }
 
