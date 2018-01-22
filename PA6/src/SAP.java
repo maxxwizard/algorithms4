@@ -1,12 +1,19 @@
-import edu.princeton.cs.algs4.*;
+import edu.princeton.cs.algs4.BreadthFirstDirectedPaths;
+import edu.princeton.cs.algs4.Digraph;
+import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.Queue;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
 public class SAP {
 
+    // internal immutable copy of the graph
     private final Digraph graph;
-    private final HashMap<Integer, LinkedList<SAPResult>> cachedResults;   // caches shortest common ancestor and ancestral path length between v->w
+
+    // caches shortest common ancestor and ancestral path length between vertices v<->w
+    private final HashMap<Integer, LinkedList<SAPResult>> cachedResults;
 
     private class SAPResult {
 
@@ -53,7 +60,7 @@ public class SAP {
             }
         }
 
-         StdOut.println(String.format("no cached result for v = %d, w = %d", v, w));
+        // StdOut.println(String.format("no cached result for v = %d, w = %d", v, w));
         return null;
     }
 
@@ -110,7 +117,7 @@ public class SAP {
             shortestAncestralPathLength = -1;
         }
 
-        StdOut.println(String.format("  v = %d, w = %d, length = %d, ancestor = %d", v, w, shortestAncestralPathLength, shortestCommonAncestor));
+        // StdOut.println(String.format("  v = %d, w = %d, length = %d, ancestor = %d", v, w, shortestAncestralPathLength, shortestCommonAncestor));
 
         // cache the result bidirectionally
         SAPResult result = new SAPResult(v, w, shortestCommonAncestor, shortestAncestralPathLength);
@@ -158,16 +165,53 @@ public class SAP {
 
     // length of shortest ancestral path between any vertex in v and any vertex in w; -1 if no such path
     public int length(Iterable<Integer> v, Iterable<Integer> w) {
-        throw new java.lang.UnsupportedOperationException();
+
+        if (v == null || w == null) {
+            throw new java.lang.IllegalArgumentException();
+        }
+
+        int shortestAncestralPath = Integer.MAX_VALUE;
+
+        // we only need to check one way because as we calculate, the results are stored bidirectionally
+        for (Integer singleV : v) {
+            for (Integer singleW : w) {
+                int ancestralPath = length(singleV, singleW);
+                if (ancestralPath != -1 && ancestralPath < shortestAncestralPath) {
+                    shortestAncestralPath = ancestralPath;
+                }
+
+            }
+        }
+
+        return (shortestAncestralPath == Integer.MAX_VALUE ? -1 : shortestAncestralPath);
     }
 
     // a common ancestor that participates in shortest ancestral path; -1 if no such path
     public int ancestor(Iterable<Integer> v, Iterable<Integer> w) {
-        throw new java.lang.UnsupportedOperationException();
+        if (v == null || w == null) {
+            throw new java.lang.IllegalArgumentException();
+        }
+
+        int shortestPathLength = length(v, w);
+        // StdOut.println(String.format("shortest path = %d", shortestPathLength));
+        if (shortestPathLength != -1) {
+            // results are calculated now so just pick any ancestor w/ shortest path length
+            for (Integer singleV : v) {
+                for (Integer singleW : w) {
+                    if (length(singleV, singleW) == shortestPathLength) {
+                        return ancestor(singleV, singleW);
+                    }
+                }
+            }
+        }
+
+        return -1;
     }
 
     // do unit testing of this class
     public static void main(String[] args) {
+
+        // single vertex source tests
         SAP sap = new SAP(new Digraph(new In("C:\\sources\\algorithms4\\PA6\\wordnet\\digraph1.txt")));
 
         assert(sap.length(3, 11) == 4);
@@ -189,5 +233,19 @@ public class SAP {
         assert(sap.length(6, 1) == -1);
         assert(sap.ancestor(1, 6) == -1);
         assert(sap.ancestor(6, 1) == -1);
+
+        // multi vertex source tests
+        SAP multiSAP = new SAP(new Digraph(new In("C:\\sources\\algorithms4\\PA6\\wordnet\\digraph1.txt")));
+
+        ArrayList<Integer> listV = new ArrayList<Integer>();
+        listV.add(3);
+        listV.add(9);
+        listV.add(7);
+        ArrayList<Integer> listW = new ArrayList<Integer>();
+        listW.add(11);
+        listW.add(12);
+        listW.add(2);
+        assert(multiSAP.length(listV, listW) == 3);
+        assert(multiSAP.ancestor(listV, listW) == 0);
     }
 }
