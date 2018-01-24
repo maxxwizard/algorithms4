@@ -1,20 +1,15 @@
+import edu.princeton.cs.algs4.Bag;
 import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.ST;
 import edu.princeton.cs.algs4.StdOut;
 
-import java.util.ArrayList;
-
 public class WordNet {
-
-    // graph so we can calculate SAP and whatnot
-    //private final Digraph graph;
 
     private final SAP sap;
 
-    // we'll store a dictionary of synonym-to-integer (multivalued to single)
-    private final ST<String, Integer> map;
-    private final ST<Integer, String> intToString_map;
+    private final ST<String, Bag<Integer>> map;         // synonym to Bag<synsetId>
+    private final ST<Integer, String> intToString_map;  // synsetId to synset
 
     // constructor takes the name of the two input files
     public WordNet(String synsets, String hypernyms) {
@@ -23,7 +18,6 @@ public class WordNet {
             throw new java.lang.IllegalArgumentException();
         }
 
-        // we need a symbol table to map strings to integers
         map = new ST<>();
         intToString_map = new ST<>();
 
@@ -38,7 +32,12 @@ public class WordNet {
             // StdOut.println(String.format("synset %d", synset));
             for (String syn : tokens[1].split(" ")) {
                 // StdOut.println(String.format(" syn %s", syn));
-                map.put(syn, synset);
+                Bag<Integer> synsetIds = map.get(syn);
+                if (synsetIds == null) {
+                    synsetIds = new Bag<Integer>();
+                    map.put(syn, synsetIds);
+                }
+                synsetIds.add(synset);
             }
         }
 
@@ -58,7 +57,7 @@ public class WordNet {
 
         sap = new SAP(graph);
 
-        StdOut.println(String.format("%d vertices with %d edges", graph.V(), graph.E()));
+        // StdOut.println(String.format("%d vertices with %d edges", graph.V(), graph.E()));
     }
 
     // returns all WordNet nouns
@@ -76,7 +75,7 @@ public class WordNet {
 
         int dist = sap.length(map.get(nounA), map.get(nounB));
 
-        StdOut.println(String.format("dist(%s, %s) = %d", nounA, nounB, dist));
+        // StdOut.println(String.format("dist(%s, %s) = %d", nounA, nounB, dist));
 
         return dist;
     }
@@ -89,7 +88,7 @@ public class WordNet {
 
         if (commonAncestor != -1) {
             // map the synset from integer back to string
-            StdOut.println(String.format("sap(%s, %s) = %s (%d)", nounA, nounB, intToString_map.get(commonAncestor), commonAncestor));
+            // StdOut.println(String.format("sap(%s, %s) = %s (%d)", nounA, nounB, intToString_map.get(commonAncestor), commonAncestor));
             return intToString_map.get(commonAncestor);
         }
 
@@ -106,8 +105,7 @@ public class WordNet {
         assert(wordnet.distance("Christmas_factor", "Hageman_factor") == 2);
         assert(wordnet.sap("Christmas_factor", "Hageman_factor").equals("coagulation_factor clotting_factor"));
 
-        // assert(wordnet.distance("worm", "bird") == 5);
-
-        // assert(wordnet.sap("worm", "bird").equals("animal"));
+        assert(wordnet.distance("worm", "bird") == 5);
+        assert(wordnet.sap("worm", "bird").equals("animal animate_being beast brute creature fauna"));
     }
 }

@@ -34,7 +34,7 @@ public class Outcast {
         return nouns[highestDistanceIdx];
     }
 
-    // see test client below
+    // unit testing
     public static void main(String[] args) {
         WordNet wordnet = new WordNet(args[0], args[1]);
         Outcast outcast = new Outcast(wordnet);
@@ -43,5 +43,6 @@ public class Outcast {
             String[] nouns = in.readAllStrings();
             StdOut.println(args[t] + ": " + outcast.outcast(nouns));
         }
+
     }
 }
