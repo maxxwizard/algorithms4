@@ -1,6 +1,8 @@
 import edu.princeton.cs.algs4.BreadthFirstDirectedPaths;
 import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.Queue;
+import edu.princeton.cs.algs4.StdOut;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -73,11 +75,17 @@ public class SAP {
     }
 
     private void calculate(int v, int w) {
+        // IDEAL ALGORITHM:
         // start a BFS from v and a BFS from w
         // if distance is farther than shortest ancestral path found so far, we're done
         // at each stage (after we mark the dequeued vertex), check to see if there is an intersection between marked nodes of each BFS
         // if the paths to the intersecting node is shorter than the shortest ancestral path found so far, save the SAP
         // SAP = length from v to x + length from w to x
+
+        // LAZY ALGORITHM (implemented here):
+        // calculate BFS from v and from w
+        // run BFS from v
+        // if current vertex is reachable from both v and w and the ancestral path length is shorter, save it
 
         BreadthFirstDirectedPaths bfs_v = new BreadthFirstDirectedPaths(graph, v);
         BreadthFirstDirectedPaths bfs_w = new BreadthFirstDirectedPaths(graph, w);
@@ -85,12 +93,28 @@ public class SAP {
         int shortestAncestralPathLength = Integer.MAX_VALUE;
         int shortestCommonAncestor = Integer.MAX_VALUE;
 
-        for (int i = 0; i < graph.V(); i++) {
-            if (bfs_v.hasPathTo(i) && bfs_w.hasPathTo(i)) { // i is a common ancestor
-                int ancestralPathLength = bfs_v.distTo(i) + bfs_w.distTo(i);
+        Queue<Integer> q = new Queue<>();
+        boolean[] marked = new boolean[graph.V()];
+        marked[v] = true;
+        q.enqueue(v);
+        while (!q.isEmpty()) {
+            int a = q.dequeue();
+            // StdOut.println(String.format(" processing vertex %d", a));
+
+            if (bfs_v.hasPathTo(a) && bfs_w.hasPathTo(a)) {
+                int ancestralPathLength = bfs_v.distTo(a) + bfs_w.distTo(a);
                 if (ancestralPathLength < shortestAncestralPathLength) {
-                    shortestCommonAncestor = i;
+                    shortestCommonAncestor = a;
                     shortestAncestralPathLength = ancestralPathLength;
+                }
+            }
+
+            // add all neighbors for processing
+            for (int b : graph.adj(a)) {
+                // StdOut.println(String.format("  adj[%d] = %d", a, b));
+                if (!marked[b]) {
+                    marked[b] = true;
+                    q.enqueue(b);
                 }
             }
         }
@@ -248,5 +272,13 @@ public class SAP {
         assert(multiSAP.length(listV, listW) == 3);
         assert(multiSAP.ancestor(listV, listW) == 0);
 
+        // timing tests
+        SAP timingSAP = new SAP(new Digraph(new In("C:\\sources\\algorithms4\\PA6\\wordnet\\digraph-wordnet.txt")));
+        long startTime = System.nanoTime();
+        timingSAP.length(5, 10);
+        long endTime = System.nanoTime();
+
+        long duration = (endTime - startTime); //divide by 1000000 to get milliseconds.
+        StdOut.println(String.format("%s ms for length(5, 10) call", Long.toString(duration)));
     }
 }
