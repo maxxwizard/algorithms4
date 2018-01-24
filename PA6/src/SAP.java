@@ -85,7 +85,6 @@ public class SAP {
         int shortestAncestralPathLength = Integer.MAX_VALUE;
         int shortestCommonAncestor = Integer.MAX_VALUE;
 
-        ArrayList<Integer> intersection = new ArrayList<>();
         for (int i = 0; i < graph.V(); i++) {
             if (bfs_v.hasPathTo(i) && bfs_w.hasPathTo(i)) { // i is a common ancestor
                 int ancestralPathLength = bfs_v.distTo(i) + bfs_w.distTo(i);
