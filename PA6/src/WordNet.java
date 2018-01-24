@@ -107,5 +107,10 @@ public class WordNet {
 
         assert(wordnet.distance("worm", "bird") == 5);
         assert(wordnet.sap("worm", "bird").equals("animal animate_being beast brute creature fauna"));
+
+        assert(wordnet.distance("white_marlin", "mileage") == 23);
+        assert(wordnet.distance("Black_Plague", "black_marlin") == 33);
+        assert(wordnet.distance("American_water_spaniel", "histology") == 27);
+        assert(wordnet.distance("Brown_Swiss", "barrel_roll") == 29);
     }
 }
