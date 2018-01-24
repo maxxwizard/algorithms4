@@ -1,8 +1,4 @@
-import edu.princeton.cs.algs4.Bag;
-import edu.princeton.cs.algs4.Digraph;
-import edu.princeton.cs.algs4.In;
-import edu.princeton.cs.algs4.ST;
-import edu.princeton.cs.algs4.StdOut;
+import edu.princeton.cs.algs4.*;
 
 public class WordNet {
 
@@ -42,6 +38,7 @@ public class WordNet {
         }
 
         Digraph graph = new Digraph(countVertices);
+
         In in_hypernyms = new In(hypernyms);
         while (in_hypernyms.hasNextLine()) {
             String line = in_hypernyms.readLine();
@@ -53,6 +50,12 @@ public class WordNet {
                 // StdOut.println(String.format(" hypernym %d", hypernym));
                 graph.addEdge(synset, hypernym);
             }
+        }
+
+        // check for a cycle in the alleged DAG
+        DirectedCycle dc = new DirectedCycle(graph);
+        if (dc.hasCycle()) {
+            throw new java.lang.IllegalArgumentException();
         }
 
         sap = new SAP(graph);
@@ -73,7 +76,18 @@ public class WordNet {
     // distance between nounA and nounB (defined below)
     public int distance(String nounA, String nounB) {
 
-        int dist = sap.length(map.get(nounA), map.get(nounB));
+        if (nounA == null || nounB == null) {
+            throw new java.lang.IllegalArgumentException();
+        }
+
+        Bag<Integer> intA = map.get(nounA);
+        Bag<Integer> intB = map.get(nounB);
+
+        if (intA == null || intB == null) {
+            throw new java.lang.IllegalArgumentException();
+        }
+
+        int dist = sap.length(intA, intB);
 
         // StdOut.println(String.format("dist(%s, %s) = %d", nounA, nounB, dist));
 
@@ -83,8 +97,19 @@ public class WordNet {
     // a synset (second field of synsets.txt) that is the common ancestor of nounA and nounB
     // in a shortest ancestral path (defined below)
     public String sap(String nounA, String nounB) {
-        // find a common ancestor synset using SAP
-        int commonAncestor = sap.ancestor(map.get(nounA), map.get(nounB));
+
+        if (nounA == null || nounB == null) {
+            throw new java.lang.IllegalArgumentException();
+        }
+
+        Bag<Integer> intA = map.get(nounA);
+        Bag<Integer> intB = map.get(nounB);
+
+        if (intA == null || intB == null) {
+            throw new java.lang.IllegalArgumentException();
+        }
+
+        int commonAncestor = sap.ancestor(intA, intB);
 
         if (commonAncestor != -1) {
             // map the synset from integer back to string
