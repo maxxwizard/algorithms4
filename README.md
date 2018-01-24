@@ -13,4 +13,4 @@ My solutions to https://www.coursera.org/learn/algorithms-part1/home and https:/
 ## Part 2 Grades
 | Assignment | Grade | Scoring |
 | ---------- |:-----:|:-------:|
-| PA6        | ?     | ? |
+| PA6        | 93%     | Correctness: 33/35 tests passed, Memory: 4/4 tests passed, Timing: 21/27 tests passed |
